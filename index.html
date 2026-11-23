@@ -635,10 +635,42 @@ function tvConsole(x, z, rot, w = 6) { const g = grp(x, z, rot, true); lb(g, w, 
 function floorLamp(x, z) { const g = grp(x, z); lc(g, 0.4, 0.08, M.metal); lc(g, 0.05, 5, M.metal); lampShades.push(lc(g, 0.55, 0.9, M.lampShade, 0, 4.8, 0, 24, 0.7)); }
 function chair(x, z, rot) { const g = grp(x, z, rot); lb(g, 1.5, 0.2, 1.5, M.wood, 0, 1.45, 0); lb(g, 1.5, 1.6, 0.15, M.wood, 0, 1.65, -0.7); for (const [a, b] of [[-.65, -.65], [.65, -.65], [-.65, .65], [.65, .65]]) lb(g, 0.12, 1.45, 0.12, M.wood, a, 0, b); lb(g, 1.3, 0.12, 1.3, M.accent, 0, 1.65, 0.05); return g; }
 function pendant(x, z, y = 6.6, r = 0.6) { const g = grp(x, z); lc(g, 0.02, CEIL - y, M.metal, 0, y); lampShades.push(lc(g, r * 0.35, r * 0.8, M.metal, 0, y - r * 0.6, 0, 24, r)); }
-function toilet(x, z, rot) { const g = grp(x, z, rot, true); lb(g, 1.5, 1.3, 0.75, M.porcelain, 0, 1.25, -0.95); lc(g, 0.62, 1.35, M.porcelain, 0, 0, 0.05, 24, 0.45); lc(g, 0.66, 0.08, M.porcelain, 0, 1.35, 0.05); }
+// Standard two-piece elongated toilet (feet). Local -Z = wall behind; `back` = distance from the bowl centre
+// (group origin, unchanged) to the finished wall face, so the tank sits flush against the wall.
+// Tank top 30", seat 16", ~29" deep from the wall, 19" wide tank, 15" wide bowl.
+const toiletWater = new THREE.MeshStandardMaterial({ color: 0xc4d3da, roughness: .04 });
+function toilet(x, z, rot, back = 1.36) {
+  const g = grp(x, z, rot, true);
+  const oval = (rTop, rBot, h, y, zc, sz, mat = M.porcelain, seg = 40) => {
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(rTop, rBot, h, seg).scale(1, 1, sz), mat);
+    m.position.set(0, y + h / 2, zc); m.castShadow = true; m.receiveShadow = true; g.add(m); return m;
+  };
+  const tz0 = -back + 0.01, tD = 0.66;                                  // tank: 8" deep, touching the wall
+  // pedestal foot on the floor + rear trapway body that carries the tank (one continuous porcelain mass)
+  oval(0.34, 0.4, 0.5, 0, -0.05, 1.55);
+  oval(0.4, 0.44, 1.26, 0, -0.9, 1.25);                                // reaches up into the tank bottom: no gap
+  // bowl: flares from the foot up to an elongated rim (15" x 19")
+  oval(0.62, 0.4, 0.72, 0.5, 0.05, 1.3);
+  oval(0.38, 0.38, 0.01, 1.22, 0.15, 1.3, toiletWater);                 // water / bowl opening seen from above
+  // seat ring (top at 16") and raised lid resting against the tank
+  const seat = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.075, 12, 40).rotateX(Math.PI / 2).scale(1, 0.7, 1.3), M.porcelain);
+  seat.position.set(0, 1.28, 0.1); seat.castShadow = true; g.add(seat);
+  const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.06, 40).scale(1, 1, 1.22), M.porcelain);
+  lid.rotation.x = Math.PI / 2 - 0.12; lid.position.set(0, 1.36 + 0.6, tz0 + tD + 0.1); lid.castShadow = true; g.add(lid);
+  lb(g, 0.5, 0.1, 0.16, M.porcelain, 0, 1.24, tz0 + tD + 0.04);          // hinge block between seat and tank
+  // tank 19" wide sitting on the body (15" to 29"), lid to 30"
+  lb(g, 1.58, 1.18, tD, M.porcelain, 0, 1.24, tz0 + tD / 2);
+  lb(g, 1.66, 0.09, tD + 0.08, M.porcelain, 0, 2.42, tz0 + tD / 2 + 0.02);
+  lb(g, 0.26, 0.05, 0.07, M.steel, -0.55, 2.12, tz0 + tD + 0.03);        // flush lever
+  return g;
+}
 function vanity(x, z, rot, w, sinks = 1) {
   const g = grp(x, z, rot, true); lb(g, w, 2.75, 1.8, M.cabinet); lb(g, w + 0.1, 0.12, 1.9, M.counter, 0, 2.75, 0);
-  for (let i = 0; i < sinks; i++) { const sx = sinks === 1 ? 0 : (i - 0.5) * w / 2; lc(g, 0.62, 0.1, M.porcelain, sx, 2.83, 0.05, 28, 0.62); lc(g, 0.05, 0.9, M.steel, sx, 2.87, -0.7); }
+  for (let i = 0; i < sinks; i++) { const sx = sinks === 1 ? 0 : (i - 0.5) * w / 2; lc(g, 0.62, 0.1, M.porcelain, sx, 2.83, 0.05, 28, 0.62);
+    // faucet: short vertical body centred behind the basin (~6" tall), small spout over the bowl, lever on top
+    lc(g, 0.1, 0.03, M.steel, sx, 2.87, -0.72, 20); lc(g, 0.045, 0.5, M.steel, sx, 2.9, -0.72, 16);
+    lb(g, 0.08, 0.07, 0.3, M.steel, sx, 3.28, -0.6); lc(g, 0.03, 0.06, M.steel, sx, 3.22, -0.47, 12);
+    lb(g, 0.05, 0.04, 0.22, M.steel, sx, 3.42, -0.8); }
   lb(g, w * 0.9, 3, 0.06, new THREE.MeshStandardMaterial({ color: 0xcfd8de, roughness: .02, metalness: 1 }), 0, 3.8, -0.92);
   lb(g, w - 0.2, 0.04, 0.02, M.metal, 0, 2.1, 0.91);
 }
@@ -670,19 +702,19 @@ wbox(6.36, 3.5, 24.5, 6.66, 6.5, 26.5, new THREE.MeshStandardMaterial({ color: 0
 // Master bath
 shower(13.75, 27.2, 17.25, 30.75, [[17.25, 27.2, 17.25, 30.75], [13.75, 27.2, 16.0, 27.2]]);
 { const g = grp(15.5, 30.5); lc(g, 0.06, 0.6, M.steel, 0, 6.4); }
-toilet(19.0, 29.25, Math.PI); vanity(20.9, 26.4, -Math.PI / 2, 4.2, 2); // was at Z 25.4, half in front of the bath door
+toilet(19.0, 29.25, Math.PI, 1.41); vanity(20.9, 26.4, -Math.PI / 2, 4.2, 2); // was at Z 25.4, half in front of the bath door
 // Nook
 { const g = grp(27.9, 8.5, 0, true); lc(g, 2.2, 0.12, M.wood, 0, 2.45, 0, 40); lc(g, 0.25, 2.45, M.metal, 0, 0, 0, 16, 0.35); lc(g, 1.0, 0.08, M.metal, 0, 0, 0, 24); }
 chair(27.9, 5.7, 0); chair(27.9, 11.3, Math.PI); chair(25.1, 8.5, Math.PI / 2); chair(30.7, 8.5, -Math.PI / 2);
 pendant(27.9, 8.5, 6.2, 1.0);
 // Bath
-tub(31.95, 0.35, 36.8, 2.95); toilet(33.3, 5.2, Math.PI / 2); vanity(35.9, 6.1, -Math.PI / 2, 3.2);
+tub(31.95, 0.35, 36.8, 2.95); toilet(33.3, 5.2, Math.PI / 2, 1.4); vanity(35.9, 6.1, -Math.PI / 2, 3.2);
 // Bedroom #3
 bed(40.9, 5.4, Math.PI / 2, 5.2, 6.8); nightstand(38.1, 1.5, Math.PI / 2); rug(39.5, 1.9, 45.0, 8.8);
 closet(46.6, 2.9, -Math.PI / 2, 4); closet(46.6, 7.2, -Math.PI / 2, 4);
 // Bath 2
 shower(48.2, 0.35, 51.9, 3.4, [[48.2, 3.4, 50.4, 3.4]]); { const g = grp(50, 0.5); lc(g, 0.06, 0.6, M.steel, 0, 6.4); }
-toilet(51.75, 5.2, -Math.PI / 2); vanity(49.1, 6.1, Math.PI / 2, 3.0);
+toilet(51.75, 5.2, -Math.PI / 2, 1.35); vanity(49.1, 6.1, Math.PI / 2, 3.0);
 // Kitchen: L counter on the north wall (range + sink), fridge to the east, island with double sink + DW
 counterRun(53.5, 0.35, 62.6, 2.35, [53.5, 0.35, 62.6, 1.5]);
 wbox(55.4, 0.0, 0.4, 57.9, 3.1, 2.4, M.steel, { cast: true });                  // range
