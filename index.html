@@ -343,25 +343,26 @@ const ROOMS = [
   { id: 'bath2', name: 'Bath 2', r: [48, 0, 53.3, 9], floor: 'tile', dims: `5'-4" × 9'-0"`, info: 'Walk-in shower across the north end, toilet and vanity in a row on the east wall.' },
   { id: 'kitchen', name: 'Kitchen', r: [53.3, 0, 65.7, 9], floor: 'ktile', dims: `12'-4" × 9'-0"`, info: 'Counter run on the north wall with range and sink, refrigerator to the east, 7\'-4" island with double sink and dishwasher, two 25SH windows to the porch.' },
   { id: 'porch', name: 'Front Porch', r: [65.7, 0, 71, 15.5], floor: 'concrete', dims: `5'-4" × 15'-6" · 91 sq ft`, info: 'Covered front porch with its own lower roof and columns. 3\'-0" front door into the great room.' },
-  { id: 'bed2', name: 'Bedroom #2', r: [40, 25.6, 51.2, 37], floor: 'carpet', dims: `12'-6" × 11'-4"`, info: '5\' bi-pass closet to the west, 25SH egress window to the south, 2\'-6" door to the north.' },
-  { id: 'hall', name: 'Hallway & Laundry', r: [37, 11.3, 53, 16.5], floor: 'wood', dims: `16'-0" × 5'-2"`, info: 'Connects the bedrooms and baths. Stackable washer/dryer closet with bifold doors on the south side.' },
-  { id: 'family', name: 'Family Room', r: [22, 9, 40, 31], floor: 'wood', dims: `18'-0" × 22'-0"`, info: 'Open to the nook. 35SH window and 3\'-0" rear door to the south patio.' },
+  { id: 'bed2', name: 'Bedroom #2', r: [34, 18.85, 51.4, 37], floor: 'carpet', dims: `12'-6" × 11'-4"`, info: '2\'-8" door from the hallway into a small entry beside the stackable laundry closet, 5\' bi-pass closet on the east wall, 25SH egress window to the south.' },
+  { id: 'hall', name: 'Hallway & Laundry', r: [31.7, 11.3, 54, 15.15], floor: 'wood', dims: `3'-4" wide`, info: 'Narrow 3\'-4" corridor that connects the bedrooms and baths, open to the family room and nook on the west and to the great room on the east. Bedroom #2 door and the stackable laundry closet (2\'-6" bifold) open off its south side.' },
+  { id: 'family', name: 'Family Room', r: [22, 9, 34, 31], floor: 'wood', dims: `13'-1" wide`, info: 'Open to the nook, with an open alcove to the northeast beside the hallway. 35SH window and 3\'-0" rear door to the south patio.' },
   { id: 'great', name: 'Great Room', r: [49.9, 18.7, 71, 37], floor: 'wood', dims: `21'-1" × 18'-4"`, info: 'Open to the kitchen and family room. Two 25SH windows on the east wall, front entry from the porch.' },
   { id: 'patioW', name: 'Uncovered Concrete Pad', r: [0, 0, 6, 37], floor: 'concrete', dims: `6'-0" × 37'-0"`, info: 'Uncovered concrete pad, west side.', out: true },
-  { id: 'patioS', name: 'Rear Patio', r: [6, 31, 40, 37], floor: 'concrete', dims: `34'-0" × 6'-0"`, info: 'Uncovered concrete pad, south side, accessed from the family room.', out: true },
+  { id: 'patioS', name: 'Rear Patio', r: [6, 31, 34, 37], floor: 'concrete', dims: `28'-0" × 6'-0"`, info: 'Uncovered concrete pad, south side, accessed from the family room.', out: true },
 ];
 // extra hit regions for the room label (open circulation areas)
 const HIT = [
+  { name: 'Great Room', r: [49.5, 15.3, 51.4, 22.3] },
   ...ROOMS.filter(r => !['great', 'family', 'hall'].includes(r.id)),
-  { name: 'Hallway & Laundry', r: [37, 11.3, 53.3, 16.5] }, { name: 'Hallway', r: [40, 16.5, 49, 25.6] },
+  { name: 'Hallway & Laundry', r: [31.7, 11.3, 54, 15.15] }, { name: 'Bedroom #2', r: [38.85, 15.15, 49.3, 19] },
   { name: 'Kitchen / Great Room', r: [53.3, 9, 65.7, 18.7] }, { name: 'Great Room', r: [49, 15.5, 71, 37] },
-  { name: 'Family Room', r: [22, 9, 40, 31] }, { name: 'Family Room', r: [22, 0, 24, 9] },
+  { name: 'Family Room', r: [22, 9, 34, 31] }, { name: 'Family Room', r: [31.7, 15.15, 38.85, 18.85] }, { name: 'Family Room', r: [22, 0, 24, 9] },
 ];
 function roomAt(x, z) { for (const h of HIT) { const [a, b, c, d] = h.r; if (x >= a && x <= c && z >= b && z <= d) return h; } return null; }
 const roomById = id => ROOMS.find(r => r.id === id);
 
 // conditioned footprint (walls on these lines)
-const FOOT = [[6, 0], [65.7, 0], [65.7, 15.5], [71, 15.5], [71, 37], [40, 37], [40, 31], [6, 31]];
+const FOOT = [[6, 0], [65.7, 0], [65.7, 15.5], [71, 15.5], [71, 37], [34, 37], [34, 31], [6, 31]];
 
 /* ---------------- ground, slabs, floors ---------------- */
 {
@@ -374,7 +375,7 @@ const FOOT = [[6, 0], [65.7, 0], [65.7, 15.5], [71, 15.5], [71, 37], [40, 37], [
   addMesh(sg, new THREE.MeshStandardMaterial({ color: 0xb9b3a8, roughness: 1 }), house, false, true);
   // concrete pads (uncovered) + porch
   wbox(0, -0.62, 0, 6, -0.18, 37, M.concrete, { cast: false });
-  wbox(6, -0.62, 31, 40, -0.18, 37, M.concrete, { cast: false });
+  wbox(6, -0.62, 31, 34, -0.18, 37, M.concrete, { cast: false });
   wbox(65.7, -0.62, -0.2, 71.2, -0.08, 15.5, M.concrete, { cast: false });
   wbox(71.2, -0.62, 5.5, 73, -0.35, 10.5, M.concrete, { cast: false }); // step
   wbox(73, -0.62, 6.5, 104, -0.56, 9.5, M.concrete, { cast: false });   // walkway to street
@@ -388,7 +389,7 @@ const FOOT = [[6, 0], [65.7, 0], [65.7, 15.5], [71, 15.5], [71, 37], [40, 37], [
     const mat = { carpet: M.carpet, tile: M.bathTile, ktile: M.kitTile, concrete: null }[r.floor];
     if (mat) hpoly(rect(x0, z0, x1, z1), 0.006, mat);
   }
-  hpoly(rect(47, 16.5, 49, 19.7), 0.006, M.bathTile); // laundry closet
+  hpoly(rect(45.4, 19.0, 49.3, 22.3), 0.009, M.bathTile); // laundry block
   // ceiling 9'-4" over the conditioned area
   hpoly(FOOT, CEIL, M.ceiling, false).receiveShadow = true;
 }
@@ -513,9 +514,9 @@ wall(6, 0, 65.7, 0, TE, EXT_H, [WIN(26, 28.5), WIN(33.2, 36.2, 6.5, 7.85), WIN(4
 wall(65.7, 0, 65.7, 15.5, TE, EXT_H, [WIN(3.6, 5.6, 3.7, 7.3), WIN(6.4, 8.4, 3.7, 7.3), DOOR(12, 15, 6.83, { hinge: 'a', side: -1, mat: M.extDoor })], 1); // east (kitchen/porch)
 wall(65.7, 15.5, 71, 15.5, TE, EXT_H, [], -1);  // step north of great room
 wall(71, 15.5, 71, 37, TE, EXT_H, [WIN(21.5, 24), WIN(31, 33.5)], 1); // east great room
-wall(40, 37, 71, 37, TE, EXT_H, [WIN(42.3, 44.8, 2.6)], 1);   // south bed2 + great
-wall(40, 31, 40, 37, TE, EXT_H, [], -1);                     // west of bed2 (patio notch)
-wall(6, 31, 40, 31, TE, EXT_H, [WIN(16.4, 18.4, 5.3, 7.3), WIN(27, 30.5), DOOR(36.5, 39.5, 6.83, { hinge: 'a', side: -1, mat: M.extDoor })], 1); // south family/baths
+wall(34, 37, 71, 37, TE, EXT_H, [WIN(42.3, 44.8, 2.6)], 1);   // south bed2 + great
+wall(34, 31, 34, 37, TE, EXT_H, [], -1);                     // west of bed2 (patio notch)
+wall(6, 31, 34, 31, TE, EXT_H, [WIN(16.4, 18.4, 5.3, 7.3), WIN(25.4, 28.9), DOOR(30.3, 33.3, 6.83, { hinge: 'a', side: -1, mat: M.extDoor })], 1); // south family/baths, rear door at the family room's east end
 wall(6, 0, 6, 31, TE, EXT_H, [WIN(6, 8.8, 2.6), WIN(15.5, 18)], -1); // west master/storage
 
 /* interior partitions */
@@ -530,20 +531,30 @@ wall(37, 11.3, 48, 11.3, TI, CEIL, [DOOR(37.6, 40.27, 6.83, { hinge: 'a', side: 
 wall(48, 0, 48, 11.3, TI, CEIL);                                   // bed3 | bath2
 wall(48, 9, 53.3, 9, TI, CEIL, [DOOR(49.3, 51.8, 6.83, { hinge: 'a', side: -1, swing: true })]);                 // bath2 door
 wall(53.3, 0, 53.3, 9, TI, CEIL);                                  // bath2 | kitchen
-// Laundry closet (sealed plan: "STACKABLE" closet on the SOUTH side of the 3'-4" hallway, 3'-2" deep,
-// bifold front flush with the hallway edge). It used to stand inside the corridor (Z 13-16.5) as a
-// free-standing block in the middle of the hall; now it sits behind the hallway line, X 47-49, Z 16.5-19.7.
-const LZ0 = 16.5, LZ1 = 19.7;
-wall(47, LZ0, 47, LZ1, TI, CEIL); wall(49, LZ0, 49, LZ1, TI, CEIL); wall(47, LZ1, 49, LZ1, TI, CEIL);
-// Sealed plan: the great room's west wall runs straight south from the stackable closet's east side down to
-// bedroom #2, so the closet sits in a wall line instead of standing as a free box in the open vestibule
-// (that loose box was the white "pillar" seen in the middle of the tour views).
-wall(49, LZ1, 49, 25.6, TI, CEIL);
-// (The free-standing "A/H closet" box at X 40-43.2, Z 16.5-19.8 was removed: it is not in the sealed plan.)
-wall(40, 25.6, 40, 31, TI, CEIL);                                  // family | bed2
-wall(40, 25.6, 51.2, 25.6, TI, CEIL, [DOOR(44, 46.5, 6.83, { hinge: 'a', side: 1, swing: true })]);            // bed2 north, 2'-6" door
-wall(51.2, 25.6, 51.2, 37, TI, CEIL);                              // bed2 | great room
-
+// MIDDLE ZONE, corrected 23-nov-2026 from the vectors of the sealed plan (BRIEF-FIX-ZONA-MEDIA.md).
+// The old reading (5'-2" hall, open space Z 16.5-25.6, bed2 X 40-52.5 from Z 25.6, laundry in the great room
+// wall) did not exist on the plan.
+// Wall A: south side of the 3'-4" hallway. Only opening: X 44.8-49.3 (bedroom #2 door + laundry front).
+wall(31.7, 15.15, 54, 15.15, TI, CEIL, [DOOR(45.0, 47.7, 6.83, { hinge: 'a', side: 1 }), { a: 47.7, b: 49.3, sill: 0, head: 6.83, kind: 'open' }]); // 2'-8" door (leaf open flat against the wall) + open laundry front
+// Wall B: north wall of bedroom #2, no openings.
+wall(33.8, 18.85, 42.4, 18.85, TI, CEIL);
+// Wall C: separates the family room's open alcove (west) from bedroom #2's entry vestibule (east).
+wall(38.85, 15.15, 38.85, 18.85, TI, CEIL);
+// Wall D: family room | bedroom #2 (family room's south stretch is 13'-1" wide).
+wall(34, 18.85, 34, 31, TI, CEIL);
+// Laundry block X 45.4-48.9(49.3), Z 19.0-22.3: stackable W/D, 2'-6" bifold on its north face toward the hall.
+wall(45.4, 19.0, 45.4, 22.3, TI, CEIL);
+wall(45.4, 22.3, 49.3, 22.3, TI, CEIL);
+wall(45.4, 19.0, 49.3, 19.0, TI, CEIL, [{ a: 45.9, b: 48.4, sill: 0, head: 7.0, kind: 'open' }]);
+// East side of the vestibule + laundry block (great room beyond), jog, then bedroom #2 | great room.
+wall(49.3, 15.15, 49.3, 22.3, TI, CEIL);
+wall(49.3, 22.3, 51.4, 22.3, TI, CEIL);
+wall(51.4, 22.3, 51.4, 37, TI, CEIL);
+// Bedroom #2 closet strip X 48.9-51.4, Z 22.3-30.3: 5' bi-pass opening facing west, solid returns at both ends.
+wall(48.9, 22.3, 48.9, 23.8, TI, CEIL);
+wall(48.9, 28.8, 48.9, 30.3, TI, CEIL);
+wall(48.9, 30.3, 51.4, 30.3, TI, CEIL);
+wbox(48.7, 8.0, 23.8, 49.1, CEIL, 28.8, M.wallInt); // header over the closet
 /* baseboards: 4" painted base is added by wall() on every interior face of every full-height wall piece */
 
 /* =====================================================================
@@ -592,9 +603,9 @@ function hipRoof(x0, z0, x1, z1, yBase) {
   roofTopNormals.push({ x0, z0, x1, z1, yEave: yT, yRidge: yR });
   return top;
 }
-// A: main body X 6–65.7, Z 0–31 · B: great room / bed2 wing X 40–71, Z 15.5–37
+// A: main body X 6–65.7, Z 0–31 · B: great room / bed2 wing X 34–71, Z 15.5–37
 hipRoof(6 - OVER, 0 - OVER, 65.7 + OVER, 31 + OVER, SOFFIT);
-hipRoof(40 - OVER, 15.5 - OVER, 71 + OVER, 37 + OVER, SOFFIT + 0.004);
+hipRoof(34 - OVER, 15.5 - OVER, 71 + OVER, 37 + OVER, SOFFIT + 0.004);
 // Porch: own lower shed roof, tucked under the main eave, sloping east
 {
   const x0 = 65.7 + TE / 2, x1 = 72.3, z0 = -0.9, z1 = 15.5, bot = 8.05, hiT = 9.32, loT = hiT - (x1 - x0) * (2.5 / 12), loB = loT - 0.38;
@@ -1024,24 +1035,23 @@ toilet(51.75, 4.75, -Math.PI / 2, 1.35); vanity(52.2, 7.55, -Math.PI / 2, 2.5);
   pendant(55.2, 6.5, 6.4, 0.55); pendant(57.3, 6.5, 6.4, 0.55); pendant(59.4, 6.5, 6.4, 0.55);
 }
 // Family room
-sofa(32.2, 26.3, -Math.PI / 2, 8); coffeeTable(28.2, 26.3, Math.PI / 2, 4.2, 2.3); tvConsole(22.95, 26.3, Math.PI / 2, 6.5);
-armchair(27.5, 21.2, 0.15); rug(25.4, 22.4, 33.5, 30.2); floorLamp(34.7, 29.6);
+sofa(31.95, 26.3, -Math.PI / 2, 8); coffeeTable(27.9, 26.3, Math.PI / 2, 4.2, 2.3); tvConsole(22.95, 26.3, Math.PI / 2, 6.5);
+armchair(27.3, 21.2, 0.15); rug(25.1, 22.4, 33.3, 30.2); floorLamp(33.1, 21.3);
 // ceiling fixtures: fans in the bedrooms and living areas (Florida standard), domes in baths, halls and storage,
 // recessed cans over the kitchen counter run
-for (const [fx, fz] of [[13.2, 11.2], [42.6, 5.6], [46.3, 31.3], [29.2, 25.0], [61.0, 28.0]]) ceilFan(fx, fz);
-for (const [dx, dz] of [[9.8, 26.8], [18.6, 26.6], [34.35, 5.2], [50.65, 5.6], [41.2, 13.9], [51.4, 13.9], [44.5, 21.0]]) domeLight(dx, dz, 0.5);
+for (const [fx, fz] of [[13.2, 11.2], [42.6, 5.6], [42.4, 28.0], [28.4, 25.0], [61.0, 28.0]]) ceilFan(fx, fz);
+for (const [dx, dz] of [[9.8, 26.8], [18.6, 26.6], [34.35, 5.2], [50.65, 5.6], [36.0, 13.25], [43.0, 13.25], [52.0, 13.25], [43.9, 17.0]]) domeLight(dx, dz, 0.5);
 for (const cx of [54.4, 58.6, 61.8]) canLight(cx, 3.6);
 // Hallway: stacked washer/dryer in the laundry closet, A/H unit
-// Laundry closet X 47-49, Z 16.5-19.7: clear interior X 47.2-48.8, Z 16.5-19.5, open to the hall on the north (Z 16.5)
+// Laundry block X 45.4-49.3, Z 19.0-22.3 (sealed plan): machines face north, 2'-6" bifold opening X 45.9-48.4 on Z 19.0
 {
   const mBody = new THREE.MeshStandardMaterial({ color: 0xe9ecef, roughness: .3, metalness: .05 });
   const mPanel = new THREE.MeshStandardMaterial({ color: 0x5b6168, roughness: .4 });
   const mGlass = new THREE.MeshStandardMaterial({ color: 0x24313b, roughness: .08, metalness: .3 });
   const mLight = new THREE.MeshStandardMaterial({ color: 0x7fd3ff, emissive: 0x3fb4ff, emissiveIntensity: .8 });
-  const X0 = 47.25, X1 = 48.75, ZF = 17.15, ZB = 19.4, XC = 48; // machines: 18" wide, 27" deep, inside the jambs
+  const X0 = 46.4, X1 = 47.9, ZF = 19.65, ZB = 21.9, XC = 47.15; // machines: 18" wide, 27" deep, inside the jambs
   // header over the opening (7'-0" clear) + casing on the hall side
-  wbox(47.2, 7.0, 16.3, 48.8, CEIL, 16.7, M.wallInt);
-  addOpeningTrim(true, 16.5, { a: 47.2, b: 48.8, sill: 0, head: 7.0, kind: 'open' }, TI, 0);
+  // (header and casing come from the block's north wall opening)
   // stacked front-load washer (bottom) and dryer (top), fronts facing the hall
   const frontZ = ZF - 0.001;
   for (const [y0, y1] of [[0, 2.85], [2.9, 5.75]]) {
@@ -1056,29 +1066,30 @@ for (const cx of [54.4, 58.6, 61.8]) canLight(cx, 3.6);
     wbox(X0 + 0.04, y0 + 0.02, ZF - 0.02, X1 - 0.04, y0 + 0.14, ZF, mPanel);           // toe kick / seam
   }
   // shelf above the machines with baskets and detergent
-  wbox(47.2, 6.55, 18.1, 48.8, 6.65, 19.5, M.trim);
-  wbox(47.2, 6.25, 19.45, 48.8, 6.55, 19.5, M.trim);                                   // back cleat
-  wbox(47.35, 6.65, 18.3, 47.95, 7.1, 19.3, new THREE.MeshStandardMaterial({ color: 0xb59a74, roughness: .9 })); // wicker basket (neutral)
+  wbox(45.6, 6.55, 20.6, 49.1, 6.65, 22.1, M.trim);
+  wbox(45.6, 6.25, 22.05, 49.1, 6.55, 22.1, M.trim);                                   // back cleat
+  wbox(46.2, 6.65, 20.8, 46.8, 7.1, 21.8, new THREE.MeshStandardMaterial({ color: 0xb59a74, roughness: .9 })); // wicker basket (neutral)
   { const jug = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.17, 0.5, 20), new THREE.MeshStandardMaterial({ color: 0xeeeeea, roughness: .45 }));
-    jug.position.set(48.35, 6.9, 18.8); jug.castShadow = true; house.add(jug);
-    const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.08, 14), M.trim); cap.position.set(48.35, 7.19, 18.8); house.add(cap); } // white detergent jug
+    jug.position.set(47.6, 6.9, 21.3); jug.castShadow = true; house.add(jug);
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.08, 14), M.trim); cap.position.set(47.6, 7.19, 21.3); house.add(cap); } // white detergent jug
   // bifold doors folded open against both jambs, projecting into the hall
   const mBi = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .55 });
   for (const side of [-1, 1]) {
-    const xj = side < 0 ? 47.2 : 48.8;                       // jamb face
+    const xj = side < 0 ? 45.9 : 48.4;                       // jamb face
     for (const dx of [0.045, 0.125]) {                       // two folded leaves standing perpendicular to the opening
       const x = xj - side * dx;
-      wbox(x - 0.035, 0.05, 16.1, x + 0.035, 6.9, 16.5, mBi);
-      for (let y = 0.6; y < 6.5; y += 0.32) wbox(x - 0.045, y, 16.16, x + 0.045, y + 0.05, 16.44, M.trim); // louvres
+      wbox(x - 0.035, 0.05, 18.4, x + 0.035, 6.9, 18.8, mBi);
+      for (let y = 0.6; y < 6.5; y += 0.32) wbox(x - 0.045, y, 18.46, x + 0.045, y + 0.05, 18.74, M.trim); // louvres
     }
   }
   // soft closet light so the machines read from the hall
-  const cl = new THREE.PointLight(0xfff2dc, 6, 7, 2); cl.position.set(48, 8.6, 17.5); house.add(cl);
-  wbox(47.75, CEIL - 0.06, 17.3, 48.25, CEIL - 0.01, 17.7, M.lampShade);
+  const cl = new THREE.PointLight(0xfff2dc, 6, 7, 2); cl.position.set(47.15, 8.6, 20.2); house.add(cl);
+  wbox(46.9, CEIL - 0.06, 20.0, 47.4, CEIL - 0.01, 20.4, M.lampShade);
 }
 // Bedroom #2
-bed(47.6, 31.4, -Math.PI / 2, 5.2, 6.8); nightstand(50.4, 28.1, -Math.PI / 2); nightstand(50.4, 34.7, -Math.PI / 2);
-closet(41.3, 31.4, Math.PI / 2, 5); rug(44.4, 28.7, 49.5, 34.1);
+// bed against the west wall (Wall D), closet bi-pass on the east wall, doors facing west into the room
+bed(37.95, 27.6, Math.PI / 2, 5.2, 6.8); nightstand(35.0, 24.3, Math.PI / 2); nightstand(35.0, 30.9, Math.PI / 2);
+closet(50.15, 26.3, -Math.PI / 2, 5, 2.1); rug(36.6, 24.4, 44.4, 30.8);
 // Great room
 sofa(57.4, 28.0, Math.PI / 2, 8.2); coffeeTable(61.8, 28.0, Math.PI / 2, 4.4, 2.4); tvConsole(70.05, 28.0, -Math.PI / 2, 6.2);
 armchair(62.6, 22.6, Math.PI * 0.08); armchair(62.6, 33.6, Math.PI * 0.92); rug(58.9, 23.4, 66.2, 32.6);
@@ -1187,16 +1198,16 @@ let tourIdx = 0;
 const TOUR = [
   { id: 'great', p: [68.4, 34.8], look: [56, 3.6, 22] },
   { id: 'kitchen', p: [57.8, 15.6], look: [59.2, 3.0, 1.5] },
-  { id: 'nook', p: [33.5, 15.8], look: [26.5, 3.4, 5] },
-  { id: 'family', p: [36.5, 12.6], look: [26.5, 3.2, 27] },
+  { id: 'nook', p: [30.6, 15.6], look: [26.5, 3.4, 5] },
+  { id: 'family', p: [30.2, 17.6], look: [24.5, 3.2, 29] },
   { id: 'master', p: [19.2, 20.6], look: [11, 3.2, 3.5] },
   { id: 'mbath', p: [18.9, 23.3], look: [17.6, 3.0, 30] },
   { id: 'storage', p: [10.3, 22.9], look: [8.2, 3.0, 29.5] },
   { id: 'bath', p: [33.9, 8.6], look: [35.0, 2.4, 1] },
   { id: 'bed3', p: [39.2, 10.0], look: [45, 3.2, 2.5] },
   { id: 'bath2', p: [50.2, 8.6], look: [51.2, 2.6, 0.8] },
-  { id: 'hall', p: [38.6, 14.0], look: [52, 4.0, 15.2] },
-  { id: 'bed2', p: [45.0, 26.5], look: [47, 3.6, 35] },
+  { id: 'hall', p: [33.2, 13.2], look: [52, 4.0, 13.9] },
+  { id: 'bed2', p: [45.2, 33.6], look: [38.5, 3.4, 22.5] },
   { id: 'porch', p: [69.6, 15.0], look: [67.5, 4, 1.5] },
   { id: 'patioS', p: [9.0, 34.2], look: [32, 4, 33.5] },
 ];
@@ -1413,7 +1424,7 @@ function drawMinimap() {
   for (const c of colliders) { if ((c.x1 - c.x0) > 0.7 && (c.z1 - c.z0) > 0.7) continue; mx.strokeRect(MX(c.x0), MZ(c.z0), (c.x1 - c.x0) * MMS, (c.z1 - c.z0) * MMS); }
   mx.fillStyle = 'rgba(255,255,255,.85)'; mx.font = `600 ${MMS * 2.1}px Segoe UI, sans-serif`; mx.textAlign = 'center';
   const short = { master: 'MASTER', storage: 'STOR', mbath: 'M.BATH', nook: 'NOOK', bath: 'BATH', bed3: 'BED 3', bath2: 'BATH 2', kitchen: 'KITCHEN', porch: 'PORCH', bed2: 'BED 2', hall: 'HALL', family: 'FAMILY', great: 'GREAT RM', patioW: '', patioS: 'PATIO' };
-  const lab = { family: [31, 21], great: [61, 24], nook: [28, 13], hall: [44.5, 14.8], porch: [68.4, 8] };
+  const lab = { family: [28, 21], great: [61, 24], nook: [28, 13], hall: [42, 13.6], porch: [68.4, 8], bed2: [42, 27] };
   for (const r of ROOMS) { const [a, b, c, d] = r.r; const p = lab[r.id] || [(a + c) / 2, (b + d) / 2]; mx.fillText(short[r.id], MX(p[0]), MZ(p[1]) + 3); }
   if (mode !== 'orbit') {
     const px = MX(player.x), pz = MZ(player.z);
