@@ -332,7 +332,7 @@ const ROOMS = [
   { id: 'bath', name: 'Bath', r: [31.7, 0, 37, 9], floor: 'tile', dims: `5'-4" × 9'-0"`, info: 'Tub against the north wall, toilet and vanity. Door from the hallway side.' },
   { id: 'bed3', name: 'Bedroom #3', r: [37, 0, 48, 11.3], floor: 'carpet', dims: `11'-0" × 11'-4"`, info: 'Two 4\' bi-pass closets to the east, 25SH egress window to the north, 2\'-8" door at the southwest corner.' },
   { id: 'bath2', name: 'Bath 2', r: [48, 0, 53.3, 9], floor: 'tile', dims: `5'-4" × 9'-0"`, info: 'Shower to the north, toilet and vanity.' },
-  { id: 'kitchen', name: 'Kitchen', r: [53.3, 0, 65.7, 9], floor: 'ktile', dims: `12'-4" × 9'-0"`, info: 'L-shaped counter on the north wall with range and sink, refrigerator to the east, 7\'-4" island with double sink and dishwasher, two 25SH windows to the porch.' },
+  { id: 'kitchen', name: 'Kitchen', r: [53.3, 0, 65.7, 9], floor: 'ktile', dims: `12'-4" × 9'-0"`, info: 'Counter run on the north wall with range and sink, refrigerator to the east, 7\'-4" island with double sink and dishwasher, two 25SH windows to the porch.' },
   { id: 'porch', name: 'Front Porch', r: [65.7, 0, 71, 15.5], floor: 'concrete', dims: `5'-4" × 15'-6" · 91 sq ft`, info: 'Covered front porch with its own lower roof and columns. 3\'-0" front door into the great room.' },
   { id: 'bed2', name: 'Bedroom #2', r: [40, 25.6, 51.2, 37], floor: 'carpet', dims: `12'-6" × 11'-4"`, info: '5\' bi-pass closet to the west, 25SH egress window to the south, 2\'-6" door to the north.' },
   { id: 'hall', name: 'Hallway & Laundry', r: [37, 11.3, 53, 16.5], floor: 'wood', dims: `16'-0" × 5'-2"`, info: 'Connects the bedrooms and baths. Stackable washer/dryer closet with bifold doors on the south side.' },
@@ -632,7 +632,6 @@ function armchair(x, z, rot) {
 function coffeeTable(x, z, rot, w = 4, d = 2.2) { const g = grp(x, z, rot); lb(g, w, 0.12, d, M.wood, 0, 1.35, 0); lb(g, w - 0.4, 0.08, d - 0.4, M.wood, 0, 0.4, 0); for (const [a, b] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) lb(g, 0.15, 1.35, 0.15, M.metal, a * (w / 2 - 0.15), 0, b * (d / 2 - 0.15)); }
 function rug(x0, z0, x1, z1) { wbox(x0, 0.01, z0, x1, 0.045, z1, M.rug, { cast: false }); }
 function tvConsole(x, z, rot, w = 6) { const g = grp(x, z, rot, true); lb(g, w, 1.8, 1.5, M.wood); lb(g, w - 0.2, 0.05, 0.03, M.metal, 0, 0.9, 0.76); lb(g, 4.6, 2.7, 0.15, M.dark, 0, 3.0, -0.4); lb(g, 0.8, 0.5, 0.5, M.dark, 0, 1.8, -0.4); }
-function plant(x, z, s = 1) { const g = grp(x, z); lc(g, 0.55 * s, 1.3 * s, M.cabinet, 0, 0, 0, 20, 0.42 * s); ls(g, 0.9 * s, M.plant, 0, 2.2 * s, 0, 1.3); ls(g, 0.6 * s, M.plant, 0.4 * s, 3.0 * s, 0.2 * s, 1.2); return g; }
 function floorLamp(x, z) { const g = grp(x, z); lc(g, 0.4, 0.08, M.metal); lc(g, 0.05, 5, M.metal); lampShades.push(lc(g, 0.55, 0.9, M.lampShade, 0, 4.8, 0, 24, 0.7)); }
 function chair(x, z, rot) { const g = grp(x, z, rot); lb(g, 1.5, 0.2, 1.5, M.wood, 0, 1.45, 0); lb(g, 1.5, 1.6, 0.15, M.wood, 0, 1.65, -0.7); for (const [a, b] of [[-.65, -.65], [.65, -.65], [-.65, .65], [.65, .65]]) lb(g, 0.12, 1.45, 0.12, M.wood, a, 0, b); lb(g, 1.3, 0.12, 1.3, M.accent, 0, 1.65, 0.05); return g; }
 function pendant(x, z, y = 6.6, r = 0.6) { const g = grp(x, z); lc(g, 0.02, CEIL - y, M.metal, 0, y); lampShades.push(lc(g, r * 0.35, r * 0.8, M.metal, 0, y - r * 0.6, 0, 24, r)); }
@@ -663,7 +662,7 @@ function counterRun(x0, z0, x1, z1, uppers) {
 bed(13.2, 4.1, 0, 6.6, 7.0); nightstand(8.6, 1.3, 0); nightstand(17.8, 1.3, 0); rug(9.2, 4.5, 17.2, 10.8);
 closet(20.6, 3.1, -Math.PI / 2, 4); closet(20.6, 7.4, -Math.PI / 2, 4);
 { const g = grp(7.05, 12.6, Math.PI / 2, true); lb(g, 5, 3, 1.7, M.wood); for (let i = 0; i < 3; i++) lb(g, 4.8, 0.04, 0.02, M.metal, 0, 0.8 + i * 0.9, 0.86); }
-armchair(8.6, 17.5, Math.PI * 0.75); floorLamp(7.3, 21.4); // armchair used to sit in front of the storage door plant(20.7, 13.2, 0.9);
+armchair(8.6, 17.5, Math.PI * 0.75); floorLamp(7.3, 21.4); // armchair used to sit in front of the storage door
 // Storage
 { const g = grp(7.6, 29.4); lc(g, 1.0, 5.0, M.porcelain); lc(g, 0.06, 1.2, M.steel, 0, 5.0); }
 wbox(6.36, 3.5, 24.5, 6.66, 6.5, 26.5, new THREE.MeshStandardMaterial({ color: 0x9aa1a6, roughness: .4, metalness: .5 }));
@@ -675,7 +674,7 @@ toilet(19.0, 29.25, Math.PI); vanity(20.9, 26.4, -Math.PI / 2, 4.2, 2); // was a
 // Nook
 { const g = grp(27.9, 8.5, 0, true); lc(g, 2.2, 0.12, M.wood, 0, 2.45, 0, 40); lc(g, 0.25, 2.45, M.metal, 0, 0, 0, 16, 0.35); lc(g, 1.0, 0.08, M.metal, 0, 0, 0, 24); }
 chair(27.9, 5.7, 0); chair(27.9, 11.3, Math.PI); chair(25.1, 8.5, Math.PI / 2); chair(30.7, 8.5, -Math.PI / 2);
-pendant(27.9, 8.5, 6.2, 1.0); plant(24.4, 1.2, 0.9);
+pendant(27.9, 8.5, 6.2, 1.0);
 // Bath
 tub(31.95, 0.35, 36.8, 2.95); toilet(33.3, 5.2, Math.PI / 2); vanity(35.9, 6.1, -Math.PI / 2, 3.2);
 // Bedroom #3
@@ -695,7 +694,6 @@ wbox(59.8, 3.0, 0.9, 61.6, 3.16, 2.0, M.steel);                                 
 wbox(62.75, 0, 0.4, 65.3, 6.3, 3.1, M.steel, { collide: true });                    // refrigerator
 wbox(64.0, 2.0, 3.12, 64.06, 5.2, 3.18, M.dark); wbox(64.8, 2.0, 3.12, 64.86, 5.2, 3.18, M.dark);
 wbox(62.75, 6.4, 0.4, 65.3, 7.4, 2.2, M.cabinet);
-counterRun(63.3, 3.4, 65.3, 8.9, null);                                             // L return under the porch windows
 // island 7'-4"
 wbox(53.7, 0, 5.6, 60.7, 0.35, 7.4, M.dark, { collide: true }); wbox(53.75, 0.35, 5.65, 60.65, 3.0, 7.35, M.cabinet);
 wbox(53.6, 3.0, 5.5, 60.8, 3.18, 8.3, M.counter);
@@ -706,7 +704,7 @@ for (const sx of [54.6, 56.6, 58.6]) { const g = grp(sx, 9.1); lc(g, 0.6, 0.12, 
 pendant(55.2, 6.5, 6.4, 0.55); pendant(57.3, 6.5, 6.4, 0.55); pendant(59.4, 6.5, 6.4, 0.55);
 // Family room
 sofa(32.2, 26.3, -Math.PI / 2, 8); coffeeTable(28.2, 26.3, Math.PI / 2, 4.2, 2.3); tvConsole(22.95, 26.3, Math.PI / 2, 6.5);
-armchair(27.5, 21.2, 0.15); rug(25.4, 22.4, 33.5, 30.2); plant(22.9, 30.0, 1); floorLamp(34.7, 29.6);
+armchair(27.5, 21.2, 0.15); rug(25.4, 22.4, 33.5, 30.2); floorLamp(34.7, 29.6);
 // Hallway: stacked washer/dryer in the laundry closet, A/H unit
 // Laundry closet X 47-49, Z 16.5-19.7: clear interior X 47.2-48.8, Z 16.5-19.5, open to the hall on the north (Z 16.5)
 {
@@ -754,15 +752,14 @@ armchair(27.5, 21.2, 0.15); rug(25.4, 22.4, 33.5, 30.2); plant(22.9, 30.0, 1); f
 }
 // Bedroom #2
 bed(47.6, 31.4, -Math.PI / 2, 5.2, 6.8); nightstand(50.4, 28.1, -Math.PI / 2); nightstand(50.4, 34.7, -Math.PI / 2);
-closet(41.3, 31.4, Math.PI / 2, 5); rug(44.4, 28.7, 49.5, 34.1); plant(43.0, 36.2, 0.8);
+closet(41.3, 31.4, Math.PI / 2, 5); rug(44.4, 28.7, 49.5, 34.1);
 // Great room
 sofa(57.4, 28.0, Math.PI / 2, 8.2); coffeeTable(61.8, 28.0, Math.PI / 2, 4.4, 2.4); tvConsole(70.05, 28.0, -Math.PI / 2, 6.2);
 armchair(62.6, 22.6, Math.PI * 0.08); armchair(62.6, 33.6, Math.PI * 0.92); rug(58.9, 23.4, 66.2, 32.6);
-floorLamp(55.8, 33.8); plant(70.0, 36.0, 1.1); plant(52.3, 19.4, 1);
+floorLamp(55.8, 33.8);
 { const g = grp(55.6, 36.2, Math.PI, true); lb(g, 5.0, 2.6, 1.4, M.wood); }
 // Porch furniture
 for (const z of [3.0, 7.0]) { const g = grp(68.5, z, Math.PI / 2, true); g.position.y = -0.08; /* porch slab top */ lb(g, 2.2, 0.2, 2.2, M.wood, 0, 1.4, 0); lb(g, 2.2, 2.2, 0.2, M.wood, 0, 1.6, -1.0); lb(g, 0.15, 1.4, 2.2, M.wood, -1.0, 0, 0); lb(g, 0.15, 1.4, 2.2, M.wood, 1.0, 0, 0); }
-plant(69.8, 11.7, 0.9).position.y = -0.08;
 // Rear patio
 { const g = grp(28.5, 34.2, 0, true); g.position.y = -0.18; lc(g, 1.7, 0.1, M.wood, 0, 2.4, 0, 32); lc(g, 0.15, 2.4, M.metal); } // rear pad top is at -0.18
 chair(26.1, 34.2, Math.PI / 2).position.y = -0.18; chair(30.9, 34.2, -Math.PI / 2).position.y = -0.18;
