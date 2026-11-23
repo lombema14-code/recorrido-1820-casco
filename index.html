@@ -269,6 +269,15 @@ const M = {
   rug: new THREE.MeshStandardMaterial({ roughness: 1, map: texCarpet }),
   metal: new THREE.MeshStandardMaterial({ roughness: .35, metalness: .6 }),
 };
+// 3"x6" white subway tile (running bond, light grey grout) for tub/shower surrounds and the kitchen backsplash
+const texSubway = canvasTex(512, (g, s) => {
+  g.fillStyle = '#c4c2bc'; g.fillRect(0, 0, s, s); const th = s / 4, tw = s / 2;
+  for (let r = 0; r < 4; r++) for (let c = -1; c < 3; c++) {
+    const x = c * tw + (r % 2 ? tw / 2 : 0), gr = g.createLinearGradient(0, r * th, 0, (r + 1) * th);
+    gr.addColorStop(0, '#fdfdfb'); gr.addColorStop(0.5, '#f4f4f1'); gr.addColorStop(1, '#e9e9e5'); g.fillStyle = gr; g.fillRect(x + 3, r * th + 3, tw - 6, th - 6);
+  }
+}, 1);
+M.subway = new THREE.MeshStandardMaterial({ map: texSubway, roughness: .14 });
 // colours toned down (less saturated, closer to real finishes); floor/wood values tint the photo textures
 const STYLES = {
   'Modern':       { floor: 0xd8d1c6, wood: 0x6a5a4c, sofa: 0x6d6c68, accent: 0x5d6b76, cabinet: 0xd6d1c8, counter: 0x3b3b3a, bedding: 0xecebe7, throwM: 0x4f545a, rug: 0xa3a19b, metal: 0x2c2c2c, wall: 0xf0eee9, carpet: 0xc9c5bd },
@@ -327,11 +336,11 @@ function ls(g, r, mat, x, y, z, sy = 1) { const m = new THREE.Mesh(new THREE.Sph
 const ROOMS = [
   { id: 'master', name: 'Master Bedroom', r: [6, 0, 22, 22.5], floor: 'carpet', dims: `16'-0" × 22'-6"`, info: 'Two 4\' bi-pass closets on the east wall, egress window and 25SH window facing west, 2\'-8" door at the southeast corner.' },
   { id: 'storage', name: 'Storage', r: [6, 22.5, 13.5, 31], floor: 'tile', dims: `7'-6" × 8'-6"`, info: 'Water heater and main electrical panel.' },
-  { id: 'mbath', name: 'Master Bath', r: [13.5, 22.5, 22, 31], floor: 'tile', dims: `8'-6" × 8'-6"`, info: '3\'-6" walk-in shower, toilet, vanity on the east wall, small window to the south.' },
+  { id: 'mbath', name: 'Master Bath', r: [13.5, 22.5, 22, 31], floor: 'tile', dims: `8'-6" × 8'-6"`, info: '3\'-6" walk-in shower in the northwest corner, toilet beside it, double vanity on the east wall, small window to the south.' },
   { id: 'nook', name: 'Nook', r: [24, 0, 31.7, 17], floor: 'wood', dims: `7'-8" × 17'-0"`, info: 'Dining nook open to the family room, 25SH window on the north wall.' },
-  { id: 'bath', name: 'Bath', r: [31.7, 0, 37, 9], floor: 'tile', dims: `5'-4" × 9'-0"`, info: 'Tub against the north wall, toilet and vanity. Door from the hallway side.' },
+  { id: 'bath', name: 'Bath', r: [31.7, 0, 37, 9], floor: 'tile', dims: `5'-4" × 9'-0"`, info: 'Vanity, toilet and tub in a row on the right-hand (east) wall, tub/shower across the north end.' },
   { id: 'bed3', name: 'Bedroom #3', r: [37, 0, 48, 11.3], floor: 'carpet', dims: `11'-0" × 11'-4"`, info: 'Two 4\' bi-pass closets to the east, 25SH egress window to the north, 2\'-8" door at the southwest corner.' },
-  { id: 'bath2', name: 'Bath 2', r: [48, 0, 53.3, 9], floor: 'tile', dims: `5'-4" × 9'-0"`, info: 'Shower to the north, toilet and vanity.' },
+  { id: 'bath2', name: 'Bath 2', r: [48, 0, 53.3, 9], floor: 'tile', dims: `5'-4" × 9'-0"`, info: 'Walk-in shower across the north end, toilet and vanity in a row on the east wall.' },
   { id: 'kitchen', name: 'Kitchen', r: [53.3, 0, 65.7, 9], floor: 'ktile', dims: `12'-4" × 9'-0"`, info: 'Counter run on the north wall with range and sink, refrigerator to the east, 7\'-4" island with double sink and dishwasher, two 25SH windows to the porch.' },
   { id: 'porch', name: 'Front Porch', r: [65.7, 0, 71, 15.5], floor: 'concrete', dims: `5'-4" × 15'-6" · 91 sq ft`, info: 'Covered front porch with its own lower roof and columns. 3\'-0" front door into the great room.' },
   { id: 'bed2', name: 'Bedroom #2', r: [40, 25.6, 51.2, 37], floor: 'carpet', dims: `12'-6" × 11'-4"`, info: '5\' bi-pass closet to the west, 25SH egress window to the south, 2\'-6" door to the north.' },
@@ -459,7 +468,28 @@ function addOpeningTrim(alongX, c, o, t, ext) {
     bx(o.a, o.a + 0.12, o.sill, o.head, -0.1, 0.1, M.trim); bx(o.b - 0.12, o.b, o.sill, o.head, -0.1, 0.1, M.trim);
     bx(o.a, o.b, o.sill, o.sill + 0.12, -0.1, 0.1, M.trim); bx(o.a, o.b, o.head - 0.12, o.head, -0.1, 0.1, M.trim);
   }
-  if (o.kind === 'door' && o.leaf) {
+  if (o.kind === 'door' && o.leaf && o.leaf.swing) {
+    // Interior door: 2-panel leaf standing open at 90 deg on its hinge jamb, lever handle (picaporte) on both faces.
+    const sd = o.leaf.side, lw = w - 0.08, lh = o.head - 0.04, lt = 0.12, mat = o.leaf.mat || M.door;
+    const ac = o.leaf.hinge === 'a' ? o.a + 0.05 + lt / 2 : o.b - 0.05 - lt / 2;
+    const pA = sd > 0 ? hT : -hT - lw, pB = sd > 0 ? hT + lw : -hT;
+    bx(ac - lt / 2, ac + lt / 2, 0.03, lh, pA, pB, mat);
+    for (const f of [-1, 1]) for (const [y0, y1] of [[0.55, 3.0], [3.55, lh - 0.45]]) {
+      const a0 = f > 0 ? ac + lt / 2 : ac - lt / 2 - 0.015, a1 = a0 + 0.015;
+      bx(a0, a1, y0, y1, pA + 0.33, pB - 0.33, mat);
+    }
+    for (const yy of [0.75, lh - 0.75]) bx(ac - lt / 2 - 0.01, ac + lt / 2 + 0.01, yy - 0.18, yy + 0.18, sd > 0 ? hT : -hT - 0.04, sd > 0 ? hT + 0.04 : -hT, M.metal); // hinges
+    const pk = sd * (hT + lw - 0.22), toward = -sd; // lever points back toward the hinge side
+    for (const f of [-1, 1]) {
+      const af = ac + f * lt / 2;
+      const rose = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.03, 20), M.metal);
+      if (alongX) rose.rotation.z = Math.PI / 2; else rose.rotation.x = Math.PI / 2;
+      rose.position.set(...P(af + f * 0.015, 3.0, pk)); house.add(rose);
+      bx(Math.min(af, af + f * 0.11), Math.max(af, af + f * 0.11), 2.975, 3.025, pk - 0.025, pk + 0.025, M.metal);
+      const l0 = pk, l1 = pk + toward * 0.4;
+      bx(Math.min(af + f * 0.09, af + f * 0.13), Math.max(af + f * 0.09, af + f * 0.13), 2.97, 3.03, Math.min(l0, l1), Math.max(l0, l1), M.metal);
+    }
+  } else if (o.kind === 'door' && o.leaf) {
     // Open leaf swung fully open and resting flat against the inside face of the wall, next to the
     // hinge jamb (o.leaf.hinge 'a'|'b'), on side o.leaf.side (+1/-1 on the perpendicular axis).
     // Before v3 the leaf stood perpendicular to the wall, cutting across the great room / family views.
@@ -489,16 +519,16 @@ wall(6, 31, 40, 31, TE, EXT_H, [WIN(16.4, 18.4, 5.3, 7.3), WIN(27, 30.5), DOOR(3
 wall(6, 0, 6, 31, TE, EXT_H, [WIN(6, 8.8, 2.6), WIN(15.5, 18)], -1); // west master/storage
 
 /* interior partitions */
-wall(22, 0, 22, 22.5, TI, CEIL, [DOOR(19, 21.67)]);                 // master | nook/family, 2'-8" door SE corner
+wall(22, 0, 22, 22.5, TI, CEIL, [DOOR(19, 21.67, 6.83, { hinge: 'a', side: -1, swing: true })]);                 // master | nook/family, 2'-8" door SE corner
 wall(22, 22.5, 22, 31, TI, CEIL);                                  // m.bath | family
-wall(6, 22.5, 22, 22.5, TI, CEIL, [DOOR(9, 11.5), DOOR(18.6, 21.1)]); // master | storage, m.bath
+wall(6, 22.5, 22, 22.5, TI, CEIL, [DOOR(9, 11.5, 6.83, { hinge: 'a', side: 1, swing: true }), DOOR(18.6, 21.1, 6.83, { hinge: 'b', side: 1, swing: true })]); // master | storage, m.bath
 wall(13.5, 22.5, 13.5, 31, TI, CEIL);                              // storage | m.bath
 wall(31.7, 0, 31.7, 9, TI, CEIL);                                  // nook | bath
-wall(31.7, 9, 37, 9, TI, CEIL, [DOOR(33.2, 35.7)]);                 // bath door
+wall(31.7, 9, 37, 9, TI, CEIL, [DOOR(33.2, 35.7, 6.83, { hinge: 'a', side: -1, swing: true })]);                 // bath door
 wall(37, 0, 37, 11.3, TI, CEIL);                                   // bath | bed3
-wall(37, 11.3, 48, 11.3, TI, CEIL, [DOOR(37.6, 40.27)]);            // bed3 door SW corner
+wall(37, 11.3, 48, 11.3, TI, CEIL, [DOOR(37.6, 40.27, 6.83, { hinge: 'a', side: -1, swing: true })]);            // bed3 door SW corner
 wall(48, 0, 48, 11.3, TI, CEIL);                                   // bed3 | bath2
-wall(48, 9, 53.3, 9, TI, CEIL, [DOOR(49.3, 51.8)]);                 // bath2 door
+wall(48, 9, 53.3, 9, TI, CEIL, [DOOR(49.3, 51.8, 6.83, { hinge: 'a', side: -1, swing: true })]);                 // bath2 door
 wall(53.3, 0, 53.3, 9, TI, CEIL);                                  // bath2 | kitchen
 // Laundry closet (sealed plan: "STACKABLE" closet on the SOUTH side of the 3'-4" hallway, 3'-2" deep,
 // bifold front flush with the hallway edge). It used to stand inside the corridor (Z 13-16.5) as a
@@ -511,14 +541,10 @@ wall(47, LZ0, 47, LZ1, TI, CEIL); wall(49, LZ0, 49, LZ1, TI, CEIL); wall(47, LZ1
 wall(49, LZ1, 49, 25.6, TI, CEIL);
 // (The free-standing "A/H closet" box at X 40-43.2, Z 16.5-19.8 was removed: it is not in the sealed plan.)
 wall(40, 25.6, 40, 31, TI, CEIL);                                  // family | bed2
-wall(40, 25.6, 51.2, 25.6, TI, CEIL, [DOOR(44, 46.5)]);            // bed2 north, 2'-6" door
+wall(40, 25.6, 51.2, 25.6, TI, CEIL, [DOOR(44, 46.5, 6.83, { hinge: 'a', side: 1, swing: true })]);            // bed2 north, 2'-6" door
 wall(51.2, 25.6, 51.2, 37, TI, CEIL);                              // bed2 | great room
 
-/* baseboards (interior look) */
-{
-  const bb = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .5 });
-  // keep it light: a thin white strip along exterior walls inside
-}
+/* baseboards: 4" painted base is added by wall() on every interior face of every full-height wall piece */
 
 /* =====================================================================
    ROOF: hip roofs (ridge along X), closed solids with fascia + soffit.
@@ -589,57 +615,182 @@ hipRoof(40 - OVER, 15.5 - OVER, 71 + OVER, 37 + OVER, SOFFIT + 0.004);
   for (const z of [-0.4, 5.0, 10.3, 15.0]) { wbox(70.9, -0.08, z - 0.3, 71.5, loB - 0.02, z + 0.3, M.trim, { collide: true }); wbox(70.75, -0.08, z - 0.45, 71.65, 0.6, z + 0.45, M.trim); }
 }
 
+/* ---------------- realism helpers ---------------- */
+// Rounded box (same construction as three's RoundedBoxGeometry): soft edges for cushions, mattresses, pillows.
+function roundedGeo(w, h, d, r, k = 3) {
+  r = Math.max(0.005, Math.min(r, w / 2 - 0.002, h / 2 - 0.002, d / 2 - 0.002));
+  const s = k * 2 + 1, geo = new THREE.BoxGeometry(1, 1, 1, s, s, s).toNonIndexed();
+  const P = geo.attributes.position, Nn = geo.attributes.normal, hs = 0.5 / s, v = new THREE.Vector3();
+  const bx = w / 2 - r, by = h / 2 - r, bz = d / 2 - r;
+  for (let i = 0; i < P.count; i++) {
+    const x = P.getX(i), y = P.getY(i), z = P.getZ(i), sx = Math.sign(x), sy = Math.sign(y), sz = Math.sign(z);
+    v.set(x - sx * hs, y - sy * hs, z - sz * hs).normalize();
+    P.setXYZ(i, bx * sx + v.x * r, by * sy + v.y * r, bz * sz + v.z * r); Nn.setXYZ(i, v.x, v.y, v.z);
+  }
+  return geo;
+}
+function lr(g, w, h, d, r, mat, x = 0, y = 0, z = 0) { const m = new THREE.Mesh(roundedGeo(w, h, d, r), mat); m.position.set(x, y + h / 2, z); m.castShadow = true; m.receiveShadow = true; g.add(m); return m; }
+// round bar centred at (x,y,z); axis 'x' | 'y' | 'z'
+function lbar(g, len, r, mat, x, y, z, axis = 'x') { const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 14), mat); if (axis === 'x') m.rotation.z = Math.PI / 2; else if (axis === 'z') m.rotation.x = Math.PI / 2; m.position.set(x, y, z); m.castShadow = true; g.add(m); return m; }
+// bar pull with two standoffs, standing off a front whose outer face is at local z = zf
+function pull(g, x, y, zf, len, vertical) {
+  if (vertical) { lbar(g, len, 0.022, M.metal, x, y, zf + 0.09, 'y'); for (const s of [-1, 1]) lbar(g, 0.08, 0.016, M.metal, x, y + s * (len / 2 - 0.05), zf + 0.045, 'z'); }
+  else { lbar(g, len, 0.022, M.metal, x, y, zf + 0.09, 'x'); for (const s of [-1, 1]) lbar(g, 0.08, 0.016, M.metal, x + s * (len / 2 - 0.05), y, zf + 0.045, 'z'); }
+}
+// Shaker cabinet front (door or drawer) on the local +Z side; zf = carcass face. pull: 'v' | 'h' | null, px/py = pull centre
+function shaker(g, x0, x1, y0, y1, zf, mat, pk = 'v', px, py) {
+  const w = x1 - x0, h = y1 - y0, cx = (x0 + x1) / 2, r = Math.min(0.2, w * 0.16, h * 0.22);
+  lb(g, w, h, 0.06, mat, cx, y0, zf + 0.03);
+  lb(g, w, r, 0.025, mat, cx, y0, zf + 0.072); lb(g, w, r, 0.025, mat, cx, y1 - r, zf + 0.072);
+  lb(g, r, h - 2 * r, 0.025, mat, x0 + r / 2, y0 + r, zf + 0.072); lb(g, r, h - 2 * r, 0.025, mat, x1 - r / 2, y0 + r, zf + 0.072);
+  if (pk === 'v') pull(g, px ?? x1 - r / 2, py ?? y1 - Math.min(0.45, h * 0.3), zf + 0.085, Math.min(0.5, h * 0.35), true);
+  if (pk === 'h') pull(g, px ?? cx, py ?? (y0 + y1) / 2, zf + 0.085, Math.min(0.55, w * 0.45), false);
+}
+// Subway-tile surround on a wall face. axis 'x': plane x = c spanning z a0..a1; 'z': plane z = c spanning x a0..a1; dir = room side
+function tileFace(axis, c, a0, a1, y0, y1, dir) {
+  const t0 = dir > 0 ? c : c - 0.05, t1 = dir > 0 ? c + 0.05 : c;
+  if (axis === 'x') wbox(t0, y0, a0, t1, y1, a1, M.subway, { cast: false }); else wbox(a0, y0, t0, a1, y1, t1, M.subway, { cast: false });
+}
+const ironMat = new THREE.MeshStandardMaterial({ color: 0x1b1c1e, roughness: .55, metalness: .3 });
+const blackGlass = new THREE.MeshStandardMaterial({ color: 0x0b0d10, roughness: .06, metalness: .4 });
+const sinkInner = new THREE.MeshStandardMaterial({ color: 0x9a9fa4, roughness: .35, metalness: .85 });
+const basinShade = new THREE.MeshStandardMaterial({ color: 0xe3e5e4, roughness: .18 });
+
 /* =====================================================================
    FURNITURE
    ===================================================================== */
 function bed(x, z, rot, w, l) {
   const g = grp(x, z, rot, true);
-  lb(g, w + 0.2, 1.05, l, M.wood, 0, 0, 0);
-  lb(g, w - 0.1, 0.85, l - 0.25, M.bedding, 0, 1.05, 0.08);
-  lb(g, w + 0.05, 0.22, l * 0.62, M.throwM, 0, 1.82, l * 0.18);
-  lb(g, w * 0.4, 0.45, 1.1, M.bedding, -w * 0.24, 1.9, -l / 2 + 0.85); lb(g, w * 0.4, 0.45, 1.1, M.bedding, w * 0.24, 1.9, -l / 2 + 0.85);
-  lb(g, w + 0.5, 4.2, 0.35, M.sofa, 0, 0, -l / 2 - 0.15);
+  // wood platform frame on short legs
+  for (const [a, b] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) lb(g, 0.22, 0.32, 0.22, M.wood, a * (w / 2), 0, b * (l / 2 - 0.05) + 0.05);
+  lr(g, w + 0.3, 0.5, l + 0.1, 0.05, M.wood, 0, 0.3, 0.05);
+  // mattress, duvet hanging over the sides, folded-back sheet, throw across the foot
+  lr(g, w, 0.85, l - 0.1, 0.16, M.bedding, 0, 0.78, 0.08);
+  lr(g, w + 0.28, 0.7, l * 0.74, 0.2, M.bedding, 0, 1.0, l / 2 - l * 0.37 + 0.12);
+  lr(g, w + 0.3, 0.12, 0.55, 0.05, M.bedding, 0, 1.64, l / 2 - l * 0.74 + 0.38);
+  lr(g, w + 0.34, 0.16, 1.5, 0.07, M.throwM, 0, 1.62, l / 2 - 0.65);
+  // pillows leaning on the headboard + two accent cushions
+  for (const s of [-1, 1]) {
+    const p = lr(g, w * 0.43, 0.45, 1.05, 0.2, M.bedding, s * w * 0.235, 1.6, -l / 2 + 0.75); p.rotation.x = -0.35;
+    const a = lr(g, w * 0.26, 1.0, 0.3, 0.13, M.accent, s * w * 0.15, 1.65, -l / 2 + 1.25); a.rotation.x = -0.25;
+  }
+  // upholstered headboard on a wood plinth
+  lb(g, w + 0.5, 1.3, 0.3, M.wood, 0, 0, -l / 2 - 0.15);
+  lr(g, w + 0.5, 3.0, 0.4, 0.12, M.sofa, 0, 1.25, -l / 2 - 0.15);
   return g;
 }
 function nightstand(x, z, rot) {
-  const g = grp(x, z, rot); lb(g, 1.7, 2.0, 1.4, M.wood); lb(g, 1.5, 0.04, 0.02, M.metal, 0, 1.4, 0.71);
-  lc(g, 0.25, 0.9, M.metal, 0, 2.0); const s = lc(g, 0.45, 0.75, M.lampShade, 0, 2.8, 0, 24, 0.55); lampShades.push(s);
+  const g = grp(x, z, rot);
+  for (const [a, b] of [[-0.7, -0.55], [0.7, -0.55], [-0.7, 0.55], [0.7, 0.55]]) lb(g, 0.12, 0.35, 0.12, M.wood, a, 0, b);
+  lr(g, 1.7, 1.75, 1.4, 0.03, M.wood, 0, 0.3, 0);
+  for (const y of [0.42, 1.2]) { lb(g, 1.56, 0.66, 0.04, M.wood, 0, y, 0.71); pull(g, 0, y + 0.33, 0.72, 0.4, false); }
+  // table lamp: ceramic base, brass neck, linen drum shade
+  lc(g, 0.22, 0.65, M.accent, 0, 2.05, 0, 24, 0.17); lc(g, 0.025, 0.3, M.metal, 0, 2.7);
+  lampShades.push(lc(g, 0.42, 0.65, M.lampShade, 0, 2.85, 0, 28, 0.5));
 }
 const lampShades = [];
 function closet(x, z, rot, len, dep = 2.2) {
   const g = grp(x, z, rot, true);
   lb(g, len, 8, dep, M.cabinet, 0, 0, 0);
-  lb(g, len / 2 + 0.1, 7.7, 0.08, M.door, -len / 4 + 0.05, 0.1, dep / 2 + 0.05);
-  lb(g, len / 2 + 0.1, 7.7, 0.08, M.door, len / 4 - 0.05, 0.1, dep / 2 + 0.14);
-  lb(g, 0.04, 0.9, 0.05, M.steel, -0.4, 3.4, dep / 2 + 0.115); lb(g, 0.04, 0.9, 0.05, M.steel, 0.4, 3.4, dep / 2 + 0.205); // pulls
+  const zf = dep / 2;
+  // casing around the opening + head track
+  lb(g, 0.28, 7.2, 0.08, M.trim, -len / 2 + 0.14, 0, zf + 0.28); lb(g, 0.28, 7.2, 0.08, M.trim, len / 2 - 0.14, 0, zf + 0.28);
+  lb(g, len, 0.3, 0.08, M.trim, 0, 6.95, zf + 0.28);
+  lb(g, len - 0.5, 0.12, 0.22, M.metal, 0, 6.8, zf + 0.12);
+  // two bi-pass doors (front and rear track), shaker panels, recessed pulls
+  shaker(g, -len / 2 + 0.25, 0.06, 0.06, 6.78, zf, M.door, 'v', -0.18, 3.4);
+  shaker(g, -0.06, len / 2 - 0.25, 0.06, 6.78, zf + 0.1, M.door, 'v', 0.18, 3.4);
+  lb(g, len - 0.5, 0.1, 0.12, M.trim, 0, 0, zf + 0.12);
 }
 function sofa(x, z, rot, w = 7.5, d = 3.1) {
   const g = grp(x, z, rot, true);
-  lb(g, w, 0.35, d, M.dark, 0, 0, 0);
-  lb(g, w - 0.8, 1.0, d - 0.6, M.sofa, 0, 0.35, 0.25);
-  lb(g, w, 2.6, 0.7, M.sofa, 0, 0.35, -d / 2 + 0.35);
-  lb(g, 0.45, 1.85, d, M.sofa, -w / 2 + 0.22, 0.35, 0); lb(g, 0.45, 1.85, d, M.sofa, w / 2 - 0.22, 0.35, 0);
-  for (let i = 0; i < 3; i++) lb(g, (w - 1.2) / 3 - 0.08, 0.35, d - 0.75, M.sofa, -((w - 1.2) / 3) + i * ((w - 1.2) / 3), 1.35, 0.3);
-  lb(g, 1.3, 1.2, 0.35, M.accent, -w / 2 + 1.3, 1.6, -d / 2 + 0.9).rotation.z = 0.1; lb(g, 1.3, 1.2, 0.35, M.accent, w / 2 - 1.3, 1.6, -d / 2 + 0.9).rotation.z = -0.1;
+  for (const [a, b] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) lb(g, 0.16, 0.3, 0.16, M.dark, a * (w / 2 - 0.25), 0, b * (d / 2 - 0.25));
+  lr(g, w, 0.75, d, 0.1, M.sofa, 0, 0.3, 0);                                   // base
+  for (const s of [-1, 1]) lr(g, 0.62, 1.9, d, 0.22, M.sofa, s * (w / 2 - 0.31), 0.3, 0); // arms
+  lr(g, w - 1.1, 2.35, 0.6, 0.18, M.sofa, 0, 0.3, -d / 2 + 0.3);                // back frame
+  const wi = w - 1.3, cw = wi / 3 - 0.04;
+  for (let i = 0; i < 3; i++) {
+    const cx = -wi / 2 + wi / 6 + i * wi / 3;
+    lr(g, cw, 0.48, d - 0.62, 0.15, M.sofa, cx, 1.03, 0.29);                     // seat cushions
+    const b = lr(g, cw, 1.3, 0.5, 0.2, M.sofa, cx, 1.5, -d / 2 + 0.78); b.rotation.x = -0.14; // back cushions
+  }
+  for (const s of [-1, 1]) { const p = lr(g, 1.2, 1.2, 0.36, 0.17, M.accent, s * (w / 2 - 1.3), 1.48, -d / 2 + 1.15); p.rotation.x = -0.22; p.rotation.z = s * 0.08; }
   return g;
 }
 function armchair(x, z, rot) {
   const g = grp(x, z, rot, true);
-  lb(g, 2.8, 1.35, 2.8, M.sofa, 0, 0.3, 0); lb(g, 2.8, 1.6, 0.55, M.sofa, 0, 1.6, -1.1);
-  lb(g, 0.4, 0.9, 2.8, M.sofa, -1.25, 1.6, 0); lb(g, 0.4, 0.9, 2.8, M.sofa, 1.25, 1.6, 0);
-  for (const [a, b] of [[-1.2, -1.2], [1.2, -1.2], [-1.2, 1.2], [1.2, 1.2]]) lb(g, 0.15, 0.3, 0.15, M.wood, a, 0, b);
+  for (const [a, b] of [[-1.15, -1.15], [1.15, -1.15], [-1.15, 1.15], [1.15, 1.15]]) lb(g, 0.15, 0.3, 0.15, M.wood, a, 0, b);
+  lr(g, 2.8, 0.72, 2.8, 0.1, M.sofa, 0, 0.3, 0);
+  for (const s of [-1, 1]) lr(g, 0.5, 1.75, 2.8, 0.2, M.sofa, s * 1.15, 0.3, 0);
+  lr(g, 1.9, 2.25, 0.55, 0.18, M.sofa, 0, 0.3, -1.12);
+  lr(g, 1.82, 0.45, 2.15, 0.14, M.sofa, 0, 1.0, 0.25);
+  const p = lr(g, 1.05, 1.05, 0.32, 0.15, M.accent, 0, 1.45, -0.68); p.rotation.x = -0.2;
 }
-function coffeeTable(x, z, rot, w = 4, d = 2.2) { const g = grp(x, z, rot); lb(g, w, 0.12, d, M.wood, 0, 1.35, 0); lb(g, w - 0.4, 0.08, d - 0.4, M.wood, 0, 0.4, 0); for (const [a, b] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) lb(g, 0.15, 1.35, 0.15, M.metal, a * (w / 2 - 0.15), 0, b * (d / 2 - 0.15)); }
-function rug(x0, z0, x1, z1) { wbox(x0, 0.01, z0, x1, 0.045, z1, M.rug, { cast: false }); }
-function tvConsole(x, z, rot, w = 6) { const g = grp(x, z, rot, true); lb(g, w, 1.8, 1.5, M.wood); lb(g, w - 0.2, 0.05, 0.03, M.metal, 0, 0.9, 0.76); lb(g, 4.6, 2.7, 0.15, M.dark, 0, 3.0, -0.4); lb(g, 0.8, 0.5, 0.5, M.dark, 0, 1.8, -0.4); }
-function floorLamp(x, z) { const g = grp(x, z); lc(g, 0.4, 0.08, M.metal); lc(g, 0.05, 5, M.metal); lampShades.push(lc(g, 0.55, 0.9, M.lampShade, 0, 4.8, 0, 24, 0.7)); }
-function chair(x, z, rot) { const g = grp(x, z, rot); lb(g, 1.5, 0.2, 1.5, M.wood, 0, 1.45, 0); lb(g, 1.5, 1.6, 0.15, M.wood, 0, 1.65, -0.7); for (const [a, b] of [[-.65, -.65], [.65, -.65], [-.65, .65], [.65, .65]]) lb(g, 0.12, 1.45, 0.12, M.wood, a, 0, b); lb(g, 1.3, 0.12, 1.3, M.accent, 0, 1.65, 0.05); return g; }
-function pendant(x, z, y = 6.6, r = 0.6) { const g = grp(x, z); lc(g, 0.02, CEIL - y, M.metal, 0, y); lampShades.push(lc(g, r * 0.35, r * 0.8, M.metal, 0, y - r * 0.6, 0, 24, r)); }
+function coffeeTable(x, z, rot, w = 4, d = 2.2) {
+  const g = grp(x, z, rot); lr(g, w, 0.13, d, 0.04, M.wood, 0, 1.33, 0); lb(g, w - 0.4, 0.07, d - 0.4, M.wood, 0, 0.4, 0);
+  for (const [a, b] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) lb(g, 0.12, 1.33, 0.12, M.metal, a * (w / 2 - 0.18), 0, b * (d / 2 - 0.18));
+  // a couple of books and a low bowl on top, kept to one corner
+  lb(g, 0.85, 0.07, 0.62, M.accent, -w / 2 + 0.8, 1.46, 0.1); lb(g, 0.75, 0.06, 0.55, M.throwM, -w / 2 + 0.82, 1.53, 0.08);
+  lc(g, 0.32, 0.16, M.porcelain, w / 2 - 0.9, 1.46, -0.1, 28, 0.2);
+}
+function rug(x0, z0, x1, z1) { wbox(x0, 0.01, z0, x1, 0.038, z1, M.throwM, { cast: false }); wbox(x0 + 0.3, 0.038, z0 + 0.3, x1 - 0.3, 0.042, z1 - 0.3, M.rug, { cast: false }); } // field + darker border
+function tvConsole(x, z, rot, w = 6) {
+  const g = grp(x, z, rot, true);
+  for (const s of [-1, 1]) lb(g, 0.12, 0.35, 1.2, M.metal, s * (w / 2 - 0.3), 0, 0);
+  lr(g, w, 1.45, 1.5, 0.03, M.wood, 0, 0.35, 0);
+  const n = 3, fw = (w - 0.1) / n;
+  for (let i = 0; i < n; i++) { const x0 = -w / 2 + 0.05 + i * fw; lb(g, fw - 0.04, 1.3, 0.04, M.wood, x0 + fw / 2, 0.42, 0.75); pull(g, x0 + fw / 2, 1.5, 0.77, 0.5, false); }
+  // 65" flat screen on a slim stand: bezel + glossy black glass
+  lb(g, 0.9, 0.05, 0.55, M.dark, 0, 1.8, -0.3); lb(g, 0.18, 0.55, 0.1, M.dark, 0, 1.85, -0.42);
+  lr(g, 4.7, 2.7, 0.14, 0.02, M.dark, 0, 2.25, -0.4);
+  lb(g, 4.58, 2.58, 0.01, blackGlass, 0, 2.31, -0.325);
+  // soundbar
+  lr(g, 2.6, 0.2, 0.3, 0.06, M.dark, 0, 1.8, 0.35);
+}
+function floorLamp(x, z) { const g = grp(x, z); lc(g, 0.4, 0.06, M.metal); lc(g, 0.035, 5, M.metal); lampShades.push(lc(g, 0.55, 0.9, M.lampShade, 0, 4.8, 0, 28, 0.68)); }
+function chair(x, z, rot) {
+  const g = grp(x, z, rot);
+  for (const [a, b] of [[-.62, -.62], [.62, -.62], [-.62, .62], [.62, .62]]) lc(g, 0.055, 1.45, M.wood, a, 0, b, 12, 0.04);
+  lr(g, 1.5, 0.12, 1.5, 0.03, M.wood, 0, 1.38, 0);
+  lr(g, 1.42, 0.2, 1.38, 0.08, M.accent, 0, 1.48, 0.03);            // upholstered seat pad
+  for (const s of [-1, 1]) lb(g, 0.1, 1.7, 0.1, M.wood, s * 0.62, 1.5, -0.66);
+  const bk = lr(g, 1.4, 0.9, 0.12, 0.05, M.wood, 0, 2.2, -0.68); bk.rotation.x = -0.08;
+  return g;
+}
+function stool(x, z, rot) { // counter stool, seat at 25"
+  const g = grp(x, z, rot);
+  for (const [a, b] of [[-.5, -.5], [.5, -.5], [-.5, .5], [.5, .5]]) lc(g, 0.04, 2.05, M.metal, a, 0, b, 10);
+  for (const s of [-1, 1]) { lbar(g, 1.0, 0.025, M.metal, 0, 0.75, s * 0.5, 'x'); lbar(g, 1.0, 0.025, M.metal, s * 0.5, 0.75, 0, 'z'); }
+  lr(g, 1.3, 0.16, 1.3, 0.06, M.wood, 0, 2.0, 0);
+  for (const s of [-1, 1]) lb(g, 0.06, 0.8, 0.06, M.metal, s * 0.5, 2.15, -0.52);
+  lr(g, 1.2, 0.42, 0.1, 0.04, M.wood, 0, 2.6, -0.55);
+}
+function pendant(x, z, y = 6.6, r = 0.6) { const g = grp(x, z); lc(g, 0.15, 0.05, M.metal, 0, CEIL - 0.05); lc(g, 0.012, CEIL - y, M.metal, 0, y); lampShades.push(lc(g, r * 0.35, r * 0.8, M.metal, 0, y - r * 0.6, 0, 28, r)); lc(g, r * 0.3, 0.02, M.lampShade, 0, y - r * 0.6, 0, 20); }
+// ceiling fixtures
+function ceilFan(x, z) {
+  const g = grp(x, z), y = CEIL;
+  lc(g, 0.25, 0.1, M.metal, 0, y - 0.1, 0, 24, 0.18); lc(g, 0.04, 0.55, M.metal, 0, y - 0.62);
+  lc(g, 0.36, 0.32, M.metal, 0, y - 0.98, 0, 28, 0.3);
+  for (let i = 0; i < 5; i++) {
+    const a = i * Math.PI * 2 / 5, arm = new THREE.Group(); arm.rotation.y = a; arm.position.y = y - 0.86; g.add(arm);
+    lb(arm, 0.5, 0.04, 0.12, M.metal, 0.55, 0, 0);
+    const bl = lr(arm, 1.6, 0.035, 0.48, 0.015, M.wood, 1.45, 0.02, 0); bl.rotation.x = 0.12;
+  }
+  const bowl = new THREE.Mesh(new THREE.SphereGeometry(0.34, 24, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), M.lampShade);
+  bowl.scale.y = 0.6; bowl.position.y = y - 0.98; g.add(bowl); lampShades.push(bowl);
+}
+function domeLight(x, z, r = 0.55) {
+  const g = grp(x, z);
+  const m = new THREE.Mesh(new THREE.SphereGeometry(r, 28, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), M.lampShade);
+  m.scale.y = 0.42; m.position.y = CEIL - 0.04; g.add(m); lampShades.push(m);
+  lc(g, r + 0.03, 0.04, M.metal, 0, CEIL - 0.04, 0, 28); lc(g, 0.05, 0.06, M.metal, 0, CEIL - 0.04 - r * 0.42 - 0.04, 0, 12);
+}
+function canLight(x, z) { const g = grp(x, z); lc(g, 0.3, 0.02, M.trim, 0, CEIL - 0.02, 0, 24); const c = lc(g, 0.22, 0.012, M.lampShade, 0, CEIL - 0.03, 0, 24); lampShades.push(c); }
 // Standard two-piece elongated toilet (feet). Local -Z = wall behind; `back` = distance from the bowl centre
 // (group origin, unchanged) to the finished wall face, so the tank sits flush against the wall.
 // Tank top 30", seat 16", ~29" deep from the wall, 19" wide tank, 15" wide bowl.
 const toiletWater = new THREE.MeshStandardMaterial({ color: 0xc4d3da, roughness: .04 });
-function toilet(x, z, rot, back = 1.36) {
+function toilet(x, z, rot, back = 1.36, tp = 1) {
   const g = grp(x, z, rot, true);
   const oval = (rTop, rBot, h, y, zc, sz, mat = M.porcelain, seg = 40) => {
     const m = new THREE.Mesh(new THREE.CylinderGeometry(rTop, rBot, h, seg).scale(1, 1, sz), mat);
@@ -662,81 +813,224 @@ function toilet(x, z, rot, back = 1.36) {
   lb(g, 1.58, 1.18, tD, M.porcelain, 0, 1.24, tz0 + tD / 2);
   lb(g, 1.66, 0.09, tD + 0.08, M.porcelain, 0, 2.42, tz0 + tD / 2 + 0.02);
   lb(g, 0.26, 0.05, 0.07, M.steel, -0.55, 2.12, tz0 + tD + 0.03);        // flush lever
+  // toilet-paper holder on the wall beside the tank
+  const tx = tp * 1.1;
+  lbar(g, 0.42, 0.025, M.steel, tx, 2.2, tz0 + 0.2, 'x'); lc(g, 0.19, 0.36, M.porcelain, tx, 2.02, tz0 + 0.2, 20).rotation.z = Math.PI / 2;
+  for (const s of [-1, 1]) lb(g, 0.04, 0.2, 0.2, M.steel, tx + s * 0.22, 2.1, tz0 + 0.1);
   return g;
 }
 function vanity(x, z, rot, w, sinks = 1) {
-  const g = grp(x, z, rot, true); lb(g, w, 2.75, 1.8, M.cabinet); lb(g, w + 0.1, 0.12, 1.9, M.counter, 0, 2.75, 0);
-  for (let i = 0; i < sinks; i++) { const sx = sinks === 1 ? 0 : (i - 0.5) * w / 2; lc(g, 0.62, 0.1, M.porcelain, sx, 2.83, 0.05, 28, 0.62);
+  const g = grp(x, z, rot, true), D = 1.8, zf = D / 2;
+  lb(g, w - 0.1, 0.33, D - 0.3, M.dark, 0, 0, -0.15);                  // recessed toe kick
+  lb(g, w, 2.42, D, M.cabinet, 0, 0.33, 0);                              // carcass
+  const nD = sinks * 2, dw = (w - 0.08) / nD;
+  for (let i = 0; i < nD; i++) { const x0 = -w / 2 + 0.04 + i * dw; shaker(g, x0 + 0.02, x0 + dw - 0.02, 0.4, 1.98, zf, M.cabinet, 'v', i % 2 ? x0 + 0.17 : x0 + dw - 0.17, 1.6); }
+  for (let i = 0; i < sinks; i++) { const x0 = -w / 2 + 0.04 + i * (w - 0.08) / sinks; shaker(g, x0 + 0.02, x0 + (w - 0.08) / sinks - 0.02, 2.04, 2.68, zf, M.cabinet, 'h'); }
+  lr(g, w + 0.1, 0.12, D + 0.08, 0.02, M.counter, 0, 2.75, 0.02);        // top
+  lb(g, w + 0.1, 0.32, 0.06, M.counter, 0, 2.87, -D / 2 + 0.01);         // 4" backsplash
+  for (let i = 0; i < sinks; i++) { const sx = sinks === 1 ? 0 : (i - 0.5) * w / 2;
+    // undermount oval basin: porcelain rim, shaded bowl, chrome drain
+    const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.62, 0.006, 44).scale(1, 1, 0.74), M.porcelain); rim.position.set(sx, 2.871, 0.08); g.add(rim);
+    const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.53, 0.53, 0.006, 44).scale(1, 1, 0.72), basinShade); bowl.position.set(sx, 2.874, 0.08); g.add(bowl);
+    lc(g, 0.07, 0.006, M.steel, sx, 2.875, 0.12, 16);
     // faucet: short vertical body centred behind the basin (~6" tall), small spout over the bowl, lever on top
     lc(g, 0.1, 0.03, M.steel, sx, 2.87, -0.72, 20); lc(g, 0.045, 0.5, M.steel, sx, 2.9, -0.72, 16);
     lb(g, 0.08, 0.07, 0.3, M.steel, sx, 3.28, -0.6); lc(g, 0.03, 0.06, M.steel, sx, 3.22, -0.47, 12);
     lb(g, 0.05, 0.04, 0.22, M.steel, sx, 3.42, -0.8); }
-  lb(g, w * 0.9, 3, 0.06, new THREE.MeshStandardMaterial({ color: 0xcfd8de, roughness: .02, metalness: 1 }), 0, 3.8, -0.92);
-  lb(g, w - 0.2, 0.04, 0.02, M.metal, 0, 2.1, 0.91);
+  // framed mirror + three-light vanity bar
+  const mw = Math.min(w * 0.88, 3.6);
+  lb(g, mw + 0.16, 3.0, 0.06, M.metal, 0, 3.7, -0.87);
+  lb(g, mw, 2.84, 0.03, new THREE.MeshStandardMaterial({ color: 0xd9e0e4, roughness: .03, metalness: 1 }), 0, 3.78, -0.83);
+  lb(g, mw * 0.8, 0.08, 0.12, M.metal, 0, 7.0, -0.86);
+  for (const s of [-1, 0, 1]) { lc(g, 0.02, 0.18, M.metal, s * mw * 0.3, 6.9, -0.78); lampShades.push(lc(g, 0.13, 0.34, M.lampShade, s * mw * 0.3, 6.62, -0.74, 20, 0.09)); }
+}
+// shower valve, head and (for tubs) spout on a wall; group local +Z points into the shower
+function showerSet(x, z, rot, spout) {
+  const g = grp(x, z, rot);
+  lbar(g, 0.55, 0.03, M.steel, 0, 6.55, 0.27, 'z');                    // arm
+  const head = lc(g, 0.22, 0.06, M.steel, 0, 6.42, 0.55, 28, 0.16); head.rotation.x = -0.35;
+  lr(g, 0.55, 0.75, 0.04, 0.05, M.steel, 0, 3.45, 0.02);                // valve trim plate
+  lc(g, 0.08, 0.1, M.steel, 0, 3.78, 0.06, 18).rotation.x = Math.PI / 2; lb(g, 0.05, 0.05, 0.35, M.steel, 0, 3.8, 0.24);
+  if (spout) { lbar(g, 0.4, 0.05, M.steel, 0, spout, 0.2, 'z'); lb(g, 0.1, 0.06, 0.14, M.steel, 0, spout - 0.08, 0.4); }
+  return g;
 }
 function shower(x0, z0, x1, z1, glassSides) {
   wbox(x0, 0, z0, x1, 0.3, z1, M.porcelain);
+  lc(grp((x0 + x1) / 2, (z0 + z1) / 2), 0.12, 0.005, M.steel, 0, 0.301, 0, 18);   // drain
   for (const s of glassSides) {
-    const g = new THREE.Mesh(new THREE.BoxGeometry(s[0] === s[2] ? 0.05 : Math.abs(s[2] - s[0]), 6.5, s[1] === s[3] ? 0.05 : Math.abs(s[3] - s[1])), M.glass);
-    g.position.set((s[0] + s[2]) / 2, 3.55, (s[1] + s[3]) / 2); house.add(g);
-    if (s[0] === s[2]) colliders.push({ x0: s[0] - 0.1, x1: s[0] + 0.1, z0: Math.min(s[1], s[3]), z1: Math.max(s[1], s[3]) });
+    const alongZ = s[0] === s[2], len = alongZ ? Math.abs(s[3] - s[1]) : Math.abs(s[2] - s[0]);
+    const g = new THREE.Mesh(new THREE.BoxGeometry(alongZ ? 0.04 : len, 6.4, alongZ ? len : 0.04), M.glass);
+    g.position.set((s[0] + s[2]) / 2, 3.5, (s[1] + s[3]) / 2); house.add(g);
+    // chrome channel along the top and the wall edge
+    if (alongZ) { wbox(s[0] - 0.04, 6.7, Math.min(s[1], s[3]), s[0] + 0.04, 6.76, Math.max(s[1], s[3]), M.steel); }
+    else { wbox(Math.min(s[0], s[2]), 6.7, s[1] - 0.04, Math.max(s[0], s[2]), 6.76, s[1] + 0.04, M.steel); }
+    if (alongZ) colliders.push({ x0: s[0] - 0.1, x1: s[0] + 0.1, z0: Math.min(s[1], s[3]), z1: Math.max(s[1], s[3]) });
   }
 }
-function tub(x0, z0, x1, z1) { wbox(x0, 0, z0, x1, 1.75, z1, M.porcelain, { collide: true }); wbox(x0 + 0.3, 1.0, z0 + 0.3, x1 - 0.3, 1.76, z1 - 0.3, new THREE.MeshStandardMaterial({ color: 0xdfe8ee, roughness: .1 })); }
+// Alcove tub 60" x 30", back against the north wall (z0), apron facing the room (z1), plumbing end at x1.
+function tubAlcove(x0, z0, x1, z1) {
+  const H = 1.65, inner = new THREE.MeshStandardMaterial({ color: 0xf3f3f1, roughness: .1 });
+  wbox(x0, 0, z0, x1, 0.42, z1, M.porcelain, { collide: true });                 // floor of the tub body
+  wbox(x0, 0.42, z1 - 0.28, x1, H, z1, M.porcelain, { collide: true });         // front apron
+  wbox(x0, 0.42, z0, x1, H, z0 + 0.25, M.porcelain, { collide: true });         // back deck
+  wbox(x0, 0.42, z0, x0 + 0.32, H, z1, M.porcelain, { collide: true });         // head end
+  wbox(x1 - 0.5, 0.42, z0, x1, H, z1, M.porcelain, { collide: true });          // drain end
+  wbox(x0 + 0.32, 0.42, z0 + 0.25, x1 - 0.5, 0.48, z1 - 0.28, inner);           // basin bottom
+  wbox(x0 + 0.02, H, z1 - 0.3, x1, H + 0.02, z1 + 0.01, M.porcelain);           // rounded-looking rim lip
+  lc(grp(x1 - 0.75, (z0 + z1) / 2), 0.09, 0.01, M.steel, 0, 0.485, 0, 16);       // drain
+  lc(grp(x1 - 0.52, (z0 + z1) / 2), 0.16, 0.03, M.steel, 0, 1.25, 0, 20).rotation.z = Math.PI / 2; // overflow plate
+  // subway tile surround to 6'-4" (just under the transom), valve + head + spout on the plumbing end
+  tileFace('z', z0, x0, x1, H, 6.3, 1); tileFace('x', x0, z0, z1, H, 7.0, 1); tileFace('x', x1, z0, z1, H, 7.0, -1);
+  showerSet(x1, (z0 + z1) / 2, -Math.PI / 2, 2.15);
+  // curtain rod across the front with the curtain gathered at the head end
+  wbox(x0, 6.86, z1 - 0.05, x1, 6.92, z1 + 0.01, M.steel);
+  const cur = new THREE.MeshStandardMaterial({ color: 0xf2efe8, roughness: .95, map: texCarpet, side: THREE.DoubleSide });
+  for (let i = 0; i < 6; i++) { const cx = x0 + 0.12 + i * 0.14, dz = (i % 2 ? 0.07 : -0.07); wbox(cx, 0.75, z1 - 0.06 + dz, cx + 0.16, 6.86, z1 - 0.02 + dz, cur); }
+  for (let i = 0; i < 6; i++) { const r = new THREE.Mesh(new THREE.TorusGeometry(0.06, 0.012, 6, 14), M.steel); r.position.set(x0 + 0.18 + i * 0.14, 6.85, z1 - 0.02); house.add(r); }
+}
 function counterRun(x0, z0, x1, z1, uppers) {
   wbox(x0, 0, z0, x1, 0.35, z1, M.dark, { collide: true });
   wbox(x0 + 0.05, 0.35, z0 + 0.05, x1 - 0.05, 3.0, z1 - 0.05, M.cabinet);
   wbox(x0 - 0.05, 3.0, z0 - 0.05, x1 + 0.05, 3.15, z1 + 0.05, M.counter);
   if (uppers) wbox(uppers[0], 4.6, uppers[1], uppers[2], 7.4, uppers[3], M.cabinet);
 }
+// gooseneck faucet: riser at (x,z), spout arcs toward +Z (dir = +1) or -Z (dir = -1)
+function gooseneck(x, y, z, dir = 1) {
+  const g = grp(x, z, dir > 0 ? 0 : Math.PI);
+  lc(g, 0.11, 0.04, M.steel, 0, y, 0, 20); lc(g, 0.045, 0.95, M.steel, 0, y, 0, 16);
+  const R = 0.3, arc = new THREE.Mesh(new THREE.TorusGeometry(R, 0.045, 10, 24, Math.PI), M.steel);
+  arc.rotation.y = Math.PI / 2; arc.position.set(0, y + 0.95, R); arc.castShadow = true; g.add(arc);
+  lc(g, 0.05, 0.22, M.steel, 0, y + 0.73, 2 * R, 16);
+  lb(g, 0.05, 0.05, 0.3, M.steel, 0.12, y + 0.55, -0.02).rotation.y = 0.6;  // side lever
+}
 
 // Master bedroom
 bed(13.2, 4.1, 0, 6.6, 7.0); nightstand(8.6, 1.3, 0); nightstand(17.8, 1.3, 0); rug(9.2, 4.5, 17.2, 10.8);
 closet(20.6, 3.1, -Math.PI / 2, 4); closet(20.6, 7.4, -Math.PI / 2, 4);
-{ const g = grp(7.05, 12.6, Math.PI / 2, true); lb(g, 5, 3, 1.7, M.wood); for (let i = 0; i < 3; i++) lb(g, 4.8, 0.04, 0.02, M.metal, 0, 0.8 + i * 0.9, 0.86); }
+{ // dresser on the west wall: legs, two columns of drawers with bar pulls
+  const g = grp(7.05, 12.6, Math.PI / 2, true);
+  for (const [a, b] of [[-2.35, -0.7], [2.35, -0.7], [-2.35, 0.7], [2.35, 0.7]]) lb(g, 0.15, 0.35, 0.15, M.wood, a, 0, b);
+  lr(g, 5, 2.65, 1.7, 0.03, M.wood, 0, 0.35, 0);
+  for (let c = 0; c < 2; c++) for (let i = 0; i < 3; i++) { const cx = -1.25 + c * 2.5; lb(g, 2.38, 0.78, 0.04, M.wood, cx, 0.45 + i * 0.83, 0.86); pull(g, cx, 0.84 + i * 0.83, 0.88, 0.6, false); }
+  lc(g, 0.3, 0.2, M.porcelain, 1.6, 3.0, 0, 24, 0.22);                 // ceramic bowl on top
+  lb(g, 3.2, 2.4, 0.08, M.wood, -0.3, 3.6, -0.75); lb(g, 3.0, 2.2, 0.02, new THREE.MeshStandardMaterial({ color: 0xd9e0e4, roughness: .03, metalness: 1 }), -0.3, 3.7, -0.7); // mirror
+}
 armchair(8.6, 17.5, Math.PI * 0.75); floorLamp(7.3, 21.4); // armchair used to sit in front of the storage door
 // Storage
-{ const g = grp(7.6, 29.4); lc(g, 1.0, 5.0, M.porcelain); lc(g, 0.06, 1.2, M.steel, 0, 5.0); }
-wbox(6.36, 3.5, 24.5, 6.66, 6.5, 26.5, new THREE.MeshStandardMaterial({ color: 0x9aa1a6, roughness: .4, metalness: .5 }));
+{ // 50 gal electric water heater: white jacket on a drain pan, domed top, cold/hot copper lines to the ceiling, T&P valve
+  const g = grp(7.6, 29.4, 0, true), copper = new THREE.MeshStandardMaterial({ color: 0xb87450, roughness: .35, metalness: .8 });
+  lc(g, 1.15, 0.18, M.dark, 0, 0, 0, 32); lc(g, 1.0, 4.7, new THREE.MeshStandardMaterial({ color: 0xefefec, roughness: .35 }), 0, 0.08, 0, 32);
+  const dome = new THREE.Mesh(new THREE.SphereGeometry(1.0, 32, 8, 0, Math.PI * 2, 0, Math.PI / 2), M.porcelain); dome.scale.y = 0.18; dome.position.y = 4.78; g.add(dome);
+  for (const s of [-1, 1]) { lc(g, 0.05, CEIL - 4.9, copper, s * 0.45, 4.9, 0.1, 12); lc(g, 0.08, 0.12, M.steel, s * 0.45, 4.92, 0.1, 12); }
+  lb(g, 0.55, 0.7, 0.04, M.steel, 0, 1.0, 0.99); lb(g, 0.55, 0.7, 0.04, M.steel, 0, 3.2, 0.99);   // element access covers
+  lbar(g, 0.3, 0.04, M.steel, 0.95, 4.3, 0, 'x'); lc(g, 0.03, 4.1, copper, 1.08, 0.2, 0, 10);        // T&P valve + discharge line
+}
+{ // 200 A load center: grey box, door with latch, conduit to the ceiling
+  const pm = new THREE.MeshStandardMaterial({ color: 0x9aa1a6, roughness: .4, metalness: .5 });
+  wbox(6.36, 3.5, 24.5, 6.66, 6.5, 26.5, pm); wbox(6.66, 3.6, 24.6, 6.69, 6.4, 26.4, pm);
+  wbox(6.69, 4.9, 26.15, 6.74, 5.2, 26.25, M.dark);
+  for (const zz of [25.0, 26.0]) wbox(6.42, 6.5, zz - 0.05, 6.52, CEIL, zz + 0.05, M.steel);
+}
 { const g = grp(12.6, 27.5, -Math.PI / 2, true); for (let i = 0; i < 5; i++) lb(g, 4, 0.1, 1.3, M.wood, 0, 0.4 + i * 1.5, 0); lb(g, 0.1, 7, 1.3, M.metal, -2, 0, 0); lb(g, 0.1, 7, 1.3, M.metal, 2, 0, 0); lb(g, 1.2, 1, 1, M.accent, -1, 1.9, 0); lb(g, 1.4, 0.9, 1, M.throwM, 0.6, 3.4, 0); }
-// Master bath
-shower(13.75, 27.2, 17.25, 30.75, [[17.25, 27.2, 17.25, 30.75], [13.75, 27.2, 16.0, 27.2]]);
-{ const g = grp(15.5, 30.5); lc(g, 0.06, 0.6, M.steel, 0, 6.4); }
-toilet(19.0, 29.25, Math.PI, 1.41); vanity(20.9, 26.4, -Math.PI / 2, 4.2, 2); // was at Z 25.4, half in front of the bath door
+// Master bath (sealed plan: 3'-6" shower in the NW corner, toilet beside it on the west wall facing east,
+// vanity on the east wall; the toilet no longer faces the door)
+shower(13.7, 22.7, 17.25, 26.25, [[13.7, 26.25, 17.25, 26.25], [17.25, 22.7, 17.25, 24.2]]);
+tileFace('x', 13.7, 22.7, 26.25, 0.3, 7.6, 1); tileFace('z', 22.7, 13.7, 17.25, 0.3, 7.6, 1);
+showerSet(13.7, 24.5, Math.PI / 2);
+toilet(15.05, 28.6, Math.PI / 2, 1.35); vanity(20.9, 28.55, -Math.PI / 2, 4.2, 2);
 // Nook
-{ const g = grp(27.9, 8.5, 0, true); lc(g, 2.2, 0.12, M.wood, 0, 2.45, 0, 40); lc(g, 0.25, 2.45, M.metal, 0, 0, 0, 16, 0.35); lc(g, 1.0, 0.08, M.metal, 0, 0, 0, 24); }
+{ const g = grp(27.9, 8.5, 0, true); lc(g, 2.2, 0.12, M.wood, 0, 2.45, 0, 48); lc(g, 0.25, 2.45, M.metal, 0, 0, 0, 16, 0.35); lc(g, 1.0, 0.08, M.metal, 0, 0, 0, 24); lc(g, 0.55, 0.12, M.porcelain, 0, 2.57, 0, 28, 0.35); }
 chair(27.9, 5.7, 0); chair(27.9, 11.3, Math.PI); chair(25.1, 8.5, Math.PI / 2); chair(30.7, 8.5, -Math.PI / 2);
 pendant(27.9, 8.5, 6.2, 1.0);
-// Bath
-tub(31.95, 0.35, 36.8, 2.95); toilet(33.3, 5.2, Math.PI / 2, 1.4); vanity(35.9, 6.1, -Math.PI / 2, 3.2);
+// Bath (hall bath, 5'-4" x 9'-0"). Owner's order, matching the sealed plan: entering from the south door,
+// everything in a row on the right-hand (east) wall: vanity first, then the toilet, tub across the north end.
+tubAlcove(31.9, 0.335, 36.8, 2.95);
+toilet(35.45, 4.45, -Math.PI / 2, 1.35, -1);
+vanity(35.9, 7.3, -Math.PI / 2, 3.0);
 // Bedroom #3
 bed(40.9, 5.4, Math.PI / 2, 5.2, 6.8); nightstand(38.1, 1.5, Math.PI / 2); rug(39.5, 1.9, 45.0, 8.8);
 closet(46.6, 2.9, -Math.PI / 2, 4); closet(46.6, 7.2, -Math.PI / 2, 4);
-// Bath 2
-shower(48.2, 0.35, 51.9, 3.4, [[48.2, 3.4, 50.4, 3.4]]); { const g = grp(50, 0.5); lc(g, 0.06, 0.6, M.steel, 0, 6.4); }
-toilet(51.75, 5.2, -Math.PI / 2, 1.35); vanity(49.1, 6.1, Math.PI / 2, 3.0);
-// Kitchen: L counter on the north wall (range + sink), fridge to the east, island with double sink + DW
-counterRun(53.5, 0.35, 62.6, 2.35, [53.5, 0.35, 62.6, 1.5]);
-wbox(55.4, 0.0, 0.4, 57.9, 3.1, 2.4, M.steel, { cast: true });                  // range
-wbox(55.5, 3.1, 0.6, 57.8, 3.16, 2.2, M.dark);
-for (const [bx, bz] of [[56, 1], [57.2, 1], [56, 1.8], [57.2, 1.8]]) { const g = grp(bx, bz); lc(g, 0.28, 0.03, M.steel, 0, 3.16); }
-wbox(55.6, 4.6, 0.35, 57.7, 7.4, 1.4, M.metal); wbox(55.3, 5.6, 0.35, 58.0, 6.0, 2.0, M.steel); // hood
-wbox(59.8, 3.0, 0.9, 61.6, 3.16, 2.0, M.steel);                                   // sink
-{ const g = grp(60.7, 0.75); lc(g, 0.06, 1.3, M.steel, 0, 3.15); lb(g, 0.1, 0.1, 0.8, M.steel, 0, 4.35, 0.3); }
-wbox(62.75, 0, 0.4, 65.3, 6.3, 3.1, M.steel, { collide: true });                    // refrigerator
-wbox(64.0, 2.0, 3.12, 64.06, 5.2, 3.18, M.dark); wbox(64.8, 2.0, 3.12, 64.86, 5.2, 3.18, M.dark);
-wbox(62.75, 6.4, 0.4, 65.3, 7.4, 2.2, M.cabinet);
-// island 7'-4"
-wbox(53.7, 0, 5.6, 60.7, 0.35, 7.4, M.dark, { collide: true }); wbox(53.75, 0.35, 5.65, 60.65, 3.0, 7.35, M.cabinet);
-wbox(53.6, 3.0, 5.5, 60.8, 3.18, 8.3, M.counter);
-wbox(56.0, 3.05, 5.75, 58.6, 3.19, 6.9, M.steel); wbox(57.28, 3.19, 5.75, 57.32, 3.25, 6.9, M.counter);
-{ const g = grp(57.3, 5.75); lc(g, 0.06, 1.3, M.steel, 0, 3.18); lb(g, 0.1, 0.1, 0.7, M.steel, 0, 4.4, 0.3); }
-wbox(58.9, 0.4, 7.36, 60.6, 2.9, 7.4, M.steel);                                     // dishwasher panel
-for (const sx of [54.6, 56.6, 58.6]) { const g = grp(sx, 9.1); lc(g, 0.6, 0.12, M.accent, 0, 2.4); lc(g, 0.07, 2.4, M.metal, 0, 0); lc(g, 0.45, 0.06, M.metal, 0, 0.9, 0, 18); }
-pendant(55.2, 6.5, 6.4, 0.55); pendant(57.3, 6.5, 6.4, 0.55); pendant(59.4, 6.5, 6.4, 0.55);
+// Bath 2 (sealed plan: shower across the north end, toilet and vanity in a row on the east wall)
+shower(48.2, 0.335, 53.1, 3.4, [[48.2, 3.4, 50.6, 3.4]]);
+tileFace('z', 0.335, 48.2, 53.1, 0.3, 6.3, 1); tileFace('x', 48.2, 0.335, 3.4, 0.3, 7.6, 1); tileFace('x', 53.1, 0.335, 3.4, 0.3, 7.6, -1);
+showerSet(53.1, 1.9, -Math.PI / 2);
+toilet(51.75, 4.75, -Math.PI / 2, 1.35); vanity(52.2, 7.55, -Math.PI / 2, 2.5);
+// Kitchen: counter run on the north wall (range + sink), fridge to the east, island with double sink + DW
+{
+  const K = new THREE.Group(); house.add(K);                               // world-aligned (fronts face +Z)
+  // north run in two pieces either side of the range (the counter no longer runs over the cooktop)
+  for (const [a, b] of [[53.5, 55.45], [57.85, 62.6]]) { wbox(a, 0, 0.35, b, 0.35, 2.35, M.dark, { collide: true }); wbox(a + 0.05, 0.35, 0.4, b - 0.05, 3.0, 2.3, M.cabinet); wbox(a - (a === 53.5 ? 0.05 : 0), 3.0, 0.3, b + (b === 62.6 ? 0.05 : 0), 3.15, 2.4, M.counter); }
+  // base fronts on the north run (range sits at X 55.4-57.9)
+  const ZF = 2.27;
+  const baseBay = (x0, x1) => { shaker(K, x0 + 0.02, x1 - 0.02, 2.42, 2.95, ZF, M.cabinet, 'h'); shaker(K, x0 + 0.02, x1 - 0.02, 0.4, 2.38, ZF, M.cabinet, 'v', x1 - 0.2, 2.05); };
+  baseBay(53.55, 55.4); baseBay(57.9, 59.75);
+  shaker(K, 59.77, 60.68, 0.4, 2.38, ZF, M.cabinet, 'v', 60.5, 2.05); shaker(K, 60.72, 61.63, 0.4, 2.38, ZF, M.cabinet, 'v', 60.9, 2.05); // sink base
+  shaker(K, 59.77, 61.63, 2.42, 2.95, ZF, M.cabinet, null);
+  for (const [y0, y1] of [[0.4, 1.25], [1.29, 2.1], [2.14, 2.95]]) shaker(K, 61.67, 62.53, y0, y1, ZF, M.cabinet, 'h');
+  // wall cabinets (left, over the microwave, right) with doors
+  wbox(53.5, 4.6, 0.35, 55.4, 7.4, 1.5, M.cabinet); wbox(55.4, 6.4, 0.35, 57.9, 7.4, 1.5, M.cabinet); wbox(57.9, 4.6, 0.35, 62.6, 7.4, 1.5, M.cabinet);
+  shaker(K, 53.52, 54.44, 4.62, 7.38, 1.5, M.cabinet, 'v', 54.3, 4.95); shaker(K, 54.48, 55.38, 4.62, 7.38, 1.5, M.cabinet, 'v', 54.62, 4.95);
+  shaker(K, 55.42, 56.63, 6.42, 7.38, 1.5, M.cabinet, 'v', 56.5, 6.62); shaker(K, 56.67, 57.88, 6.42, 7.38, 1.5, M.cabinet, 'v', 56.8, 6.62);
+  for (let i = 0; i < 4; i++) { const x0 = 57.92 + i * 1.17; shaker(K, x0, x0 + 1.13, 4.62, 7.38, 1.5, M.cabinet, 'v', i % 2 ? x0 + 0.16 : x0 + 0.97, 4.95); }
+  lb(K, 9.1, 0.12, 1.2, M.cabinet, 58.05, 7.4, 0.95);                       // crown band
+  // subway backsplash
+  wbox(53.5, 3.15, 0.335, 62.6, 4.6, 0.37, M.subway, { cast: false }); wbox(55.4, 3.0, 0.335, 57.9, 5.0, 0.372, M.subway, { cast: false });
+  // 30" range: stainless body, oven door with window, front knobs, black cooktop with cast-iron grates
+  wbox(55.45, 0, 0.4, 57.85, 2.98, 2.38, M.steel, { collide: true });
+  wbox(55.55, 0.1, 2.38, 57.75, 0.48, 2.43, M.steel);                        // storage drawer
+  wbox(55.55, 0.55, 2.38, 57.75, 2.36, 2.45, M.steel);                       // oven door
+  wbox(55.85, 0.95, 2.45, 57.45, 1.95, 2.455, blackGlass);                   // oven window
+  lbar(K, 2.0, 0.035, M.steel, 56.65, 2.2, 2.6, 'x'); for (const s of [-1, 1]) lbar(K, 0.17, 0.02, M.steel, 56.65 + s * 0.9, 2.2, 2.52, 'z');
+  wbox(55.5, 2.42, 2.38, 57.8, 2.92, 2.41, M.dark);                           // control strip
+  for (let i = 0; i < 5; i++) { const k = lbar(K, 0.09, 0.07, M.steel, 55.8 + i * 0.42, 2.67, 2.45, 'z'); k.castShadow = false; }
+  wbox(55.45, 2.98, 0.4, 57.85, 3.1, 2.38, blackGlass);                      // cooktop, flush with the counter
+  wbox(55.45, 3.1, 0.4, 57.85, 3.6, 0.6, M.steel);                           // back guard
+  for (const [bx, bz] of [[56.05, 0.95], [57.25, 0.95], [56.05, 1.85], [57.25, 1.85]]) {
+    lc(K, 0.22, 0.04, ironMat, bx, 3.1, bz, 20); lc(K, 0.13, 0.04, ironMat, bx, 3.14, bz, 16);
+    lb(K, 0.95, 0.05, 0.05, ironMat, bx, 3.18, bz); lb(K, 0.05, 0.05, 0.85, ironMat, bx, 3.18, bz);
+  }
+  for (const zz of [0.52, 1.4, 2.27]) lb(K, 2.3, 0.05, 0.05, ironMat, 56.65, 3.18, zz);
+  for (const xx of [55.52, 56.65, 57.78]) lb(K, 0.05, 0.05, 1.8, ironMat, xx, 3.18, 1.4);
+  // over-the-range microwave
+  wbox(55.5, 5.0, 0.35, 57.8, 6.35, 1.65, M.steel);
+  wbox(55.6, 5.08, 1.65, 57.12, 6.27, 1.67, blackGlass); wbox(57.2, 5.08, 1.65, 57.72, 6.27, 1.67, M.dark);
+  lbar(K, 0.85, 0.03, M.steel, 57.1, 5.68, 1.76, 'y'); for (const s of [-1, 1]) lbar(K, 0.1, 0.018, M.steel, 57.1, 5.68 + s * 0.35, 1.7, 'z');
+  // single-bowl undermount sink + gooseneck faucet
+  wbox(59.85, 3.15, 0.92, 61.55, 3.152, 2.02, M.steel, { cast: false }); wbox(59.95, 3.152, 1.0, 61.45, 3.154, 1.92, sinkInner, { cast: false });
+  lc(K, 0.1, 0.004, ironMat, 60.7, 3.155, 1.55, 16);
+  gooseneck(60.7, 3.15, 0.68, 1);
+  // French-door refrigerator: bottom freezer drawer, door seam, bar handles, water dispenser
+  wbox(62.75, 0, 0.4, 65.3, 6.3, 3.1, M.steel, { collide: true });
+  wbox(62.78, 2.56, 3.1, 65.27, 2.6, 3.12, M.dark); wbox(64.005, 2.6, 3.1, 64.045, 6.28, 3.12, M.dark);
+  for (const hx of [63.88, 64.17]) { lbar(K, 2.3, 0.04, M.steel, hx, 4.35, 3.3, 'y'); for (const s of [-1, 1]) lbar(K, 0.2, 0.025, M.steel, hx, 4.35 + s * 1.0, 3.2, 'z'); }
+  lbar(K, 1.7, 0.04, M.steel, 64.025, 2.3, 3.3, 'x'); for (const s of [-1, 1]) lbar(K, 0.2, 0.025, M.steel, 64.025 + s * 0.75, 2.3, 3.2, 'z');
+  wbox(63.05, 3.7, 3.1, 63.6, 4.6, 3.115, blackGlass);
+  wbox(62.75, 6.4, 0.4, 65.3, 7.4, 2.2, M.cabinet);
+  shaker(K, 62.77, 64.0, 6.42, 7.38, 2.2, M.cabinet, 'v', 63.86, 6.62); shaker(K, 64.05, 65.28, 6.42, 7.38, 2.2, M.cabinet, 'v', 64.19, 6.62);
+  // island 7'-4": work side to the north (sink + dishwasher), seating side to the south
+  wbox(53.7, 0, 5.6, 60.7, 0.35, 7.4, M.dark, { collide: true }); wbox(53.75, 0.35, 5.65, 60.65, 3.0, 7.35, M.cabinet);
+  wbox(53.6, 3.0, 5.5, 60.8, 3.18, 8.3, M.counter);
+  const KI = new THREE.Group(); KI.position.set(57.2, 0, 5.65); KI.rotation.y = Math.PI; house.add(KI); // local x = 57.2 - X, fronts face north
+  for (const [y0, y1] of [[0.4, 1.25], [1.29, 2.1], [2.14, 2.95]]) shaker(KI, 1.22, 3.43, y0, y1, 0, M.cabinet, 'h');      // drawer bank X 53.77-55.98
+  shaker(KI, -1.48, -0.17, 0.4, 2.38, 0, M.cabinet, 'v', -0.34, 2.05); shaker(KI, -0.13, 1.18, 0.4, 2.38, 0, M.cabinet, 'v', 0.04, 2.05);
+  shaker(KI, -1.48, 1.18, 2.42, 2.95, 0, M.cabinet, null);
+  wbox(58.75, 0.38, 5.57, 60.62, 2.97, 5.65, M.steel);                       // dishwasher (moved to the work side)
+  wbox(58.75, 2.62, 5.565, 60.62, 2.97, 5.57, M.dark); lbar(K, 1.5, 0.03, M.steel, 59.68, 2.45, 5.47, 'x');
+  for (let i = 0; i < 4; i++) { const x0 = 53.8 + i * 1.71; shaker(K, x0, x0 + 1.67, 0.4, 2.95, 7.35, M.cabinet, null); } // seating side panels
+  wbox(55.75, 3.18, 5.8, 58.65, 3.182, 6.95, M.steel, { cast: false });
+  wbox(55.85, 3.182, 5.88, 57.15, 3.184, 6.87, sinkInner, { cast: false }); wbox(57.25, 3.182, 5.88, 58.55, 3.184, 6.87, sinkInner, { cast: false });
+  gooseneck(56.5, 3.18, 5.66, 1);
+  for (const sx of [54.6, 56.6, 58.6]) stool(sx, 9.0, Math.PI);
+  pendant(55.2, 6.5, 6.4, 0.55); pendant(57.3, 6.5, 6.4, 0.55); pendant(59.4, 6.5, 6.4, 0.55);
+}
 // Family room
 sofa(32.2, 26.3, -Math.PI / 2, 8); coffeeTable(28.2, 26.3, Math.PI / 2, 4.2, 2.3); tvConsole(22.95, 26.3, Math.PI / 2, 6.5);
 armchair(27.5, 21.2, 0.15); rug(25.4, 22.4, 33.5, 30.2); floorLamp(34.7, 29.6);
+// ceiling fixtures: fans in the bedrooms and living areas (Florida standard), domes in baths, halls and storage,
+// recessed cans over the kitchen counter run
+for (const [fx, fz] of [[13.2, 11.2], [42.6, 5.6], [46.3, 31.3], [29.2, 25.0], [61.0, 28.0]]) ceilFan(fx, fz);
+for (const [dx, dz] of [[9.8, 26.8], [18.6, 26.6], [34.35, 5.2], [50.65, 5.6], [41.2, 13.9], [51.4, 13.9], [44.5, 21.0]]) domeLight(dx, dz, 0.5);
+for (const cx of [54.4, 58.6, 61.8]) canLight(cx, 3.6);
 // Hallway: stacked washer/dryer in the laundry closet, A/H unit
 // Laundry closet X 47-49, Z 16.5-19.7: clear interior X 47.2-48.8, Z 16.5-19.5, open to the hall on the north (Z 16.5)
 {
@@ -789,7 +1083,13 @@ closet(41.3, 31.4, Math.PI / 2, 5); rug(44.4, 28.7, 49.5, 34.1);
 sofa(57.4, 28.0, Math.PI / 2, 8.2); coffeeTable(61.8, 28.0, Math.PI / 2, 4.4, 2.4); tvConsole(70.05, 28.0, -Math.PI / 2, 6.2);
 armchair(62.6, 22.6, Math.PI * 0.08); armchair(62.6, 33.6, Math.PI * 0.92); rug(58.9, 23.4, 66.2, 32.6);
 floorLamp(55.8, 33.8);
-{ const g = grp(55.6, 36.2, Math.PI, true); lb(g, 5.0, 2.6, 1.4, M.wood); }
+{ // sideboard on the south wall: legs, three doors with pulls, ceramic lamp
+  const g = grp(55.6, 36.2, Math.PI, true);
+  for (const [a, b] of [[-2.35, -0.55], [2.35, -0.55], [-2.35, 0.55], [2.35, 0.55]]) lb(g, 0.14, 0.4, 0.14, M.metal, a, 0, b);
+  lr(g, 5.0, 2.2, 1.4, 0.03, M.wood, 0, 0.4, 0);
+  for (let i = 0; i < 3; i++) { const cx = -5 / 3 + i * 5 / 3; lb(g, 5 / 3 - 0.06, 2.0, 0.04, M.wood, cx, 0.5, 0.71); pull(g, cx, 2.1, 0.73, 0.45, false); }
+  lc(g, 0.25, 0.7, M.accent, -1.6, 2.6, 0, 24, 0.18); lampShades.push(lc(g, 0.45, 0.65, M.lampShade, -1.6, 3.35, 0, 28, 0.55));
+}
 // Porch furniture
 for (const z of [3.0, 7.0]) { const g = grp(68.5, z, Math.PI / 2, true); g.position.y = -0.08; /* porch slab top */ lb(g, 2.2, 0.2, 2.2, M.wood, 0, 1.4, 0); lb(g, 2.2, 2.2, 0.2, M.wood, 0, 1.6, -1.0); lb(g, 0.15, 1.4, 2.2, M.wood, -1.0, 0, 0); lb(g, 0.15, 1.4, 2.2, M.wood, 1.0, 0, 0); }
 // Rear patio
@@ -890,11 +1190,11 @@ const TOUR = [
   { id: 'nook', p: [33.5, 15.8], look: [26.5, 3.4, 5] },
   { id: 'family', p: [36.5, 12.6], look: [26.5, 3.2, 27] },
   { id: 'master', p: [19.2, 20.6], look: [11, 3.2, 3.5] },
-  { id: 'mbath', p: [18.9, 23.3], look: [16, 3.0, 30] },
+  { id: 'mbath', p: [18.9, 23.3], look: [17.6, 3.0, 30] },
   { id: 'storage', p: [10.3, 22.9], look: [8.2, 3.0, 29.5] },
-  { id: 'bath', p: [33.9, 8.6], look: [34.3, 2.4, 1] },
+  { id: 'bath', p: [33.9, 8.6], look: [35.0, 2.4, 1] },
   { id: 'bed3', p: [39.2, 10.0], look: [45, 3.2, 2.5] },
-  { id: 'bath2', p: [50.8, 8.6], look: [50.4, 2.6, 0.8] },
+  { id: 'bath2', p: [50.2, 8.6], look: [51.2, 2.6, 0.8] },
   { id: 'hall', p: [38.6, 14.0], look: [52, 4.0, 15.2] },
   { id: 'bed2', p: [45.0, 26.5], look: [47, 3.6, 35] },
   { id: 'porch', p: [69.6, 15.0], look: [67.5, 4, 1.5] },
