@@ -535,7 +535,7 @@ wall(53.3, 0, 53.3, 9, TI, CEIL);                                  // bath2 | ki
 // The old reading (5'-2" hall, open space Z 16.5-25.6, bed2 X 40-52.5 from Z 25.6, laundry in the great room
 // wall) did not exist on the plan.
 // Wall A: south side of the 3'-4" hallway. Only opening: X 44.8-49.3 (bedroom #2 door + laundry front).
-wall(31.7, 15.15, 54, 15.15, TI, CEIL, [DOOR(45.0, 47.7, 6.83, { hinge: 'a', side: 1 }), { a: 47.7, b: 49.3, sill: 0, head: 6.83, kind: 'open' }]); // 2'-8" door (leaf open flat against the wall) + open laundry front
+wall(31.7, 15.15, 54, 15.15, TI, CEIL, [DOOR(45.0, 47.7, 6.83, { hinge: 'a', side: 1, swing: true }), { a: 47.7, b: 49.3, sill: 0, head: 6.83, kind: 'open' }]); // 2'-8" door (leaf open flat against the wall) + open laundry front
 // Wall B: north wall of bedroom #2, no openings.
 wall(33.8, 18.85, 42.4, 18.85, TI, CEIL);
 // Wall C: separates the family room's open alcove (west) from bedroom #2's entry vestibule (east).
@@ -1072,15 +1072,11 @@ for (const cx of [54.4, 58.6, 61.8]) canLight(cx, 3.6);
   { const jug = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.17, 0.5, 20), new THREE.MeshStandardMaterial({ color: 0xeeeeea, roughness: .45 }));
     jug.position.set(47.6, 6.9, 21.3); jug.castShadow = true; house.add(jug);
     const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.08, 14), M.trim); cap.position.set(47.6, 7.19, 21.3); house.add(cap); } // white detergent jug
-  // bifold doors folded open against both jambs, projecting into the hall
+  // bifold doors CLOSED across the opening, louvered panels in the plane of the wall
   const mBi = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .55 });
-  for (const side of [-1, 1]) {
-    const xj = side < 0 ? 45.9 : 48.4;                       // jamb face
-    for (const dx of [0.045, 0.125]) {                       // two folded leaves standing perpendicular to the opening
-      const x = xj - side * dx;
-      wbox(x - 0.035, 0.05, 18.4, x + 0.035, 6.9, 18.8, mBi);
-      for (let y = 0.6; y < 6.5; y += 0.32) wbox(x - 0.045, y, 18.46, x + 0.045, y + 0.05, 18.74, M.trim); // louvres
-    }
+  for (const px of [[45.93, 47.15], [47.18, 48.37]]) {
+    wbox(px[0], 0.05, 18.93, px[1], 6.9, 19.07, mBi);
+    for (let y = 0.6; y < 6.5; y += 0.32) wbox(px[0] + 0.03, y, 18.88, px[1] - 0.03, y + 0.05, 18.925, M.trim); // louvres
   }
   // soft closet light so the machines read from the hall
   const cl = new THREE.PointLight(0xfff2dc, 6, 7, 2); cl.position.set(47.15, 8.6, 20.2); house.add(cl);
