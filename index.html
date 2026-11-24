@@ -345,7 +345,7 @@ const ROOMS = [
   { id: 'porch', name: 'Front Porch', r: [65.7, 0, 71, 15.5], floor: 'concrete', dims: `5'-4" × 15'-6" · 91 sq ft`, info: 'Covered front porch with its own lower roof and columns. 3\'-0" front door into the great room.' },
   { id: 'bed2', name: 'Bedroom #2', r: [34, 18.85, 51.4, 37], floor: 'carpet', dims: `12'-6" × 11'-4"`, info: '2\'-8" door from the hallway into a small entry beside the stackable laundry closet, 5\' bi-pass closet on the east wall, 25SH egress window to the south.' },
   { id: 'hall', name: 'Hallway & Laundry', r: [31.7, 11.3, 54, 15.15], floor: 'wood', dims: `3'-4" wide`, info: 'Narrow 3\'-4" corridor that connects the bedrooms and baths, open to the family room and nook on the west and to the great room on the east. Bedroom #2 door and the stackable laundry closet (2\'-6" bifold) open off its south side.' },
-  { id: 'family', name: 'Family Room', r: [22, 9, 34, 31], floor: 'wood', dims: `13'-1" wide`, info: 'Open to the nook, with an open alcove to the northeast beside the hallway. 35SH window and 3\'-0" rear door to the south patio.' },
+  { id: 'family', name: 'Family Room', r: [22, 9, 34, 31], floor: 'wood', dims: `13'-1" wide`, info: 'Open to the nook and the hallway. 35SH window and 3\'-0" rear door to the south patio.' },
   { id: 'great', name: 'Great Room', r: [49.9, 18.7, 71, 37], floor: 'wood', dims: `21'-1" × 18'-4"`, info: 'Open to the kitchen and family room. Two 25SH windows on the east wall, front entry from the porch.' },
   { id: 'patioW', name: 'Uncovered Concrete Pad', r: [0, 0, 6, 37], floor: 'concrete', dims: `6'-0" × 37'-0"`, info: 'Uncovered concrete pad, west side.', out: true },
   { id: 'patioS', name: 'Rear Patio', r: [6, 31, 34, 37], floor: 'concrete', dims: `28'-0" × 6'-0"`, info: 'Uncovered concrete pad, south side, accessed from the family room.', out: true },
@@ -534,15 +534,12 @@ wall(53.3, 0, 53.3, 9, TI, CEIL);                                  // bath2 | ki
 // MIDDLE ZONE, corrected 23-nov-2026 from the vectors of the sealed plan (BRIEF-FIX-ZONA-MEDIA.md).
 // The old reading (5'-2" hall, open space Z 16.5-25.6, bed2 X 40-52.5 from Z 25.6, laundry in the great room
 // wall) did not exist on the plan.
-// Wall A: south side of the 3'-4" hallway. Openings: bedroom #2 door X 44.8-47.5 and the laundry bifold front X 47.5-49.9, both IN this wall (sealed plan: the stackable niche sits behind the bifold, its doors face the hallway).
-wall(31.7, 15.15, 54, 15.15, TI, CEIL, [DOOR(44.8, 47.5, 6.83, { hinge: 'b', side: 1 })]); // Bedroom #2 door only; east of it the wall is SOLID: the laundry is a niche inside Bedroom #2, no front on the hallway (reading approved by Emanuel, 24-nov-2026)
-// Wall B: north wall of bedroom #2, no openings.
-wall(33.8, 18.85, 42.4, 18.85, TI, CEIL);
-// Wall C: separates the family room's open alcove (west) from bedroom #2's entry vestibule (east).
-wall(38.85, 15.15, 38.85, 18.85, TI, CEIL);
-// Wall D: family room | bedroom #2 (family room's south stretch is 13'-1" wide).
-wall(34, 18.85, 34, 31, TI, CEIL);
-// Laundry niche X 45.4-48.9(49.3), Z 19.0-22.3: stackable W/D. NO north wall at Z 19: the niche opens north to the bifold in wall A (Z 15.15); the machines face the hallway through it.
+// Wall A: south side of the 3'-4" hallway AND north wall of bedroom #2 (approved reading, Emanuel, 24-nov-2026): the only opening is the bedroom #2 door X 44.8-47.5; east of it the wall is SOLID, the laundry is a niche inside the bedroom.
+wall(31.7, 15.15, 54, 15.15, TI, CEIL, [DOOR(44.8, 47.5, 6.83, { hinge: 'b', side: 1 })]);
+// There is NO entry band south of wall A: no wall B (Z 18.85) and no wall C (X 38.85). An earlier reading drew both and chopped the bedroom's entry; removed 24-nov-2026 to match the approved reading.
+// Wall D: family room | bedroom #2, runs the full height of the room from wall A to the patio notch.
+wall(34, 15.15, 34, 31, TI, CEIL);
+// Laundry niche X 45.4-48.9(49.3), Z 19.0-22.3: stackable W/D inside bedroom #2 at its NE corner. NO north wall at Z 19: the niche opens north into the bedroom's entry area; the machines face the bedroom, not the hallway.
 wall(45.4, 19.0, 45.4, 22.3, TI, CEIL);
 wall(45.4, 22.3, 49.3, 22.3, TI, CEIL);
 // East side of the entry + laundry niche (great room beyond), jog, then bedroom #2 | great room.
