@@ -535,7 +535,7 @@ wall(53.3, 0, 53.3, 9, TI, CEIL);                                  // bath2 | ki
 // The old reading (5'-2" hall, open space Z 16.5-25.6, bed2 X 40-52.5 from Z 25.6, laundry in the great room
 // wall) did not exist on the plan.
 // Wall A: south side of the 3'-4" hallway. Only opening: X 44.8-49.3 (bedroom #2 door + laundry front).
-wall(31.7, 15.15, 54, 15.15, TI, CEIL, [DOOR(45.0, 47.7, 6.83, { hinge: 'a', side: 1, swing: true }), { a: 47.7, b: 49.3, sill: 0, head: 6.83, kind: 'open' }]); // 2'-8" door (leaf open flat against the wall) + open laundry front
+wall(31.7, 15.15, 54, 15.15, TI, CEIL, [DOOR(45.0, 47.7, 6.83, { hinge: 'a', side: 1 }), { a: 47.7, b: 49.3, sill: 0, head: 6.83, kind: 'open' }]); // 2'-8" door (leaf open flat against the wall) + open laundry front
 // Wall B: north wall of bedroom #2, no openings.
 wall(33.8, 18.85, 42.4, 18.85, TI, CEIL);
 // Wall C: separates the family room's open alcove (west) from bedroom #2's entry vestibule (east).
@@ -1082,6 +1082,10 @@ for (const cx of [54.4, 58.6, 61.8]) canLight(cx, 3.6);
   const cl = new THREE.PointLight(0xfff2dc, 6, 7, 2); cl.position.set(47.15, 8.6, 20.2); house.add(cl);
   wbox(46.9, CEIL - 0.06, 20.0, 47.4, CEIL - 0.01, 20.4, M.lampShade);
 }
+// Bedroom #2 door leaf CLOSED in the plane of wall A (opening X 45.0-47.7 at Z 15.15), lever handles both faces
+wbox(45.05, 0.03, 15.06, 47.65, 6.8, 15.24, M.door);
+wbox(47.26, 3.3, 14.97, 47.54, 3.52, 15.06, M.metal);
+wbox(47.26, 3.3, 15.24, 47.54, 3.52, 15.33, M.metal);
 // Bedroom #2
 // bed against the west wall (Wall D), closet bi-pass on the east wall, doors facing west into the room
 bed(37.95, 27.6, Math.PI / 2, 5.2, 6.8); nightstand(35.0, 24.3, Math.PI / 2); nightstand(35.0, 30.9, Math.PI / 2);
