@@ -535,7 +535,7 @@ wall(53.3, 0, 53.3, 9, TI, CEIL);                                  // bath2 | ki
 // The old reading (5'-2" hall, open space Z 16.5-25.6, bed2 X 40-52.5 from Z 25.6, laundry in the great room
 // wall) did not exist on the plan.
 // Wall A: south side of the 3'-4" hallway. Openings: bedroom #2 door X 44.8-47.5 and the laundry bifold front X 47.5-49.9, both IN this wall (sealed plan: the stackable niche sits behind the bifold, its doors face the hallway).
-wall(31.7, 15.15, 54, 15.15, TI, CEIL, [DOOR(44.8, 47.5, 6.83, { hinge: 'b', side: 1 }), { a: 47.5, b: 49.9, sill: 0, head: 6.83, kind: 'open' }]); // 2'-8" bedroom door + 2'-6" laundry bifold front
+wall(31.7, 15.15, 54, 15.15, TI, CEIL, [DOOR(44.8, 47.5, 6.83, { hinge: 'b', side: 1 })]); // Bedroom #2 door only; east of it the wall is SOLID: the laundry is a niche inside Bedroom #2, no front on the hallway (reading approved by Emanuel, 24-nov-2026)
 // Wall B: north wall of bedroom #2, no openings.
 wall(33.8, 18.85, 42.4, 18.85, TI, CEIL);
 // Wall C: separates the family room's open alcove (west) from bedroom #2's entry vestibule (east).
@@ -1042,7 +1042,7 @@ for (const [fx, fz] of [[13.2, 11.2], [42.6, 5.6], [42.4, 28.0], [28.4, 25.0], [
 for (const [dx, dz] of [[9.8, 26.8], [18.6, 26.6], [34.35, 5.2], [50.65, 5.6], [36.0, 13.25], [43.0, 13.25], [52.0, 13.25], [43.9, 17.0]]) domeLight(dx, dz, 0.5);
 for (const cx of [54.4, 58.6, 61.8]) canLight(cx, 3.6);
 // Hallway: stacked washer/dryer in the laundry closet, A/H unit
-// Laundry niche X 45.4-49.3, Z 19.0-22.3 (sealed plan): machines face north, front open to the hallway through wall A, no door (Emanuel, 24-nov-2026)
+// Laundry niche X 45.4-49.3, Z 19.0-22.3 (sealed plan): machines face north into the Bedroom #2 entry pocket; no front on the hallway wall (reading approved by Emanuel, 24-nov-2026)
 {
   const mBody = new THREE.MeshStandardMaterial({ color: 0xe9ecef, roughness: .3, metalness: .05 });
   const mPanel = new THREE.MeshStandardMaterial({ color: 0x5b6168, roughness: .4 });
@@ -1071,7 +1071,7 @@ for (const cx of [54.4, 58.6, 61.8]) canLight(cx, 3.6);
   { const jug = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.17, 0.5, 20), new THREE.MeshStandardMaterial({ color: 0xeeeeea, roughness: .45 }));
     jug.position.set(47.6, 6.9, 21.3); jug.castShadow = true; house.add(jug);
     const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.08, 14), M.trim); cap.position.set(47.6, 7.19, 21.3); house.add(cap); } // white detergent jug
-  // Laundry front OPEN toward the hallway, no door (Emanuel's instruction, 24-nov-2026): the opening in wall A (X 47.5-49.9) stays clear, the stacked machines are seen from the hallway.
+  // Laundry niche inside Bedroom #2 (reading approved by Emanuel, 24-nov-2026): the machines face north into the bedroom entry pocket; wall A is solid here, no front on the hallway.
   // soft closet light so the machines read from the hall
   const cl = new THREE.PointLight(0xfff2dc, 6, 7, 2); cl.position.set(47.15, 8.6, 20.2); house.add(cl);
   wbox(46.9, CEIL - 0.06, 20.0, 47.4, CEIL - 0.01, 20.4, M.lampShade);
