@@ -1071,12 +1071,7 @@ for (const cx of [54.4, 58.6, 61.8]) canLight(cx, 3.6);
   { const jug = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.17, 0.5, 20), new THREE.MeshStandardMaterial({ color: 0xeeeeea, roughness: .45 }));
     jug.position.set(47.6, 6.9, 21.3); jug.castShadow = true; house.add(jug);
     const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.08, 14), M.trim); cap.position.set(47.6, 7.19, 21.3); house.add(cap); } // white detergent jug
-  // bifold doors CLOSED in the plane of WALL A (Z 15.15), facing the hallway, louvered panels
-  const mBi = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .55 });
-  for (const px of [[47.55, 48.7], [48.73, 49.85]]) {
-    wbox(px[0], 0.05, 15.08, px[1], 6.9, 15.22, mBi);
-    for (let y = 0.6; y < 6.5; y += 0.32) wbox(px[0] + 0.03, y, 15.02, px[1] - 0.03, y + 0.05, 15.075, M.trim); // louvres
-  }
+  // Laundry front OPEN toward the hallway, no door (Emanuel's instruction, 24-nov-2026): the opening in wall A (X 47.5-49.9) stays clear, the stacked machines are seen from the hallway.
   // soft closet light so the machines read from the hall
   const cl = new THREE.PointLight(0xfff2dc, 6, 7, 2); cl.position.set(47.15, 8.6, 20.2); house.add(cl);
   wbox(46.9, CEIL - 0.06, 20.0, 47.4, CEIL - 0.01, 20.4, M.lampShade);
