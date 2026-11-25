@@ -526,9 +526,9 @@ wall(6, 22.5, 22, 22.5, TI, CEIL, [DOOR(9, 11.5, 6.83, { hinge: 'a', side: 1, sw
 wall(13.5, 22.5, 13.5, 31, TI, CEIL);                              // storage | m.bath
 wall(31.7, 0, 31.7, 9, TI, CEIL);                                  // nook | bath
 wall(31.7, 9, 37, 9, TI, CEIL, [DOOR(33.2, 35.7, 6.83, { hinge: 'a', side: -1, swing: true })]);                 // bath door
-wall(37, 0, 37, 11.3, TI, CEIL);                                   // bath | bed3
+wall(37, 0, 37, 9, TI, CEIL);                                      // bath | bed3 (ends at the bath's south wall Z 9; the Z 9-11.3 stub was a free fin in the hallway, removed 25-nov-2026 at Emanuel's instruction)
 wall(37, 11.3, 48, 11.3, TI, CEIL, [DOOR(37.6, 40.27, 6.83, { hinge: 'a', side: -1, swing: true })]);            // bed3 door SW corner
-wall(48, 0, 48, 11.3, TI, CEIL);                                   // bed3 | bath2
+wall(48, 0, 48, 9, TI, CEIL);                                      // bed3 | bath2 (ends at bath2's south wall Z 9; the Z 9-11.3 stub was a free fin in the hallway, removed 25-nov-2026 at Emanuel's instruction)
 wall(48, 9, 53.3, 9, TI, CEIL, [DOOR(49.3, 51.8, 6.83, { hinge: 'a', side: -1, swing: true })]);                 // bath2 door
 wall(53.3, 0, 53.3, 9, TI, CEIL);                                  // bath2 | kitchen
 // MIDDLE ZONE, corrected 23-nov-2026 from the vectors of the sealed plan (BRIEF-FIX-ZONA-MEDIA.md).
