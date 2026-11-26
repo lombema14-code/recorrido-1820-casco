@@ -697,16 +697,17 @@ function nightstand(x, z, rot) {
 }
 const lampShades = [];
 function closet(x, z, rot, len, dep = 2.2) {
+  // floor to ceiling (Emanuel, 26-nov-2026: the units stopped at 8 ft and left a gap above; they must reach the ceiling, CEIL = 9.333)
   const g = grp(x, z, rot, true);
-  lb(g, len, 8, dep, M.cabinet, 0, 0, 0);
+  lb(g, len, CEIL, dep, M.cabinet, 0, 0, 0);
   const zf = dep / 2;
   // casing around the opening + head track
-  lb(g, 0.28, 7.2, 0.08, M.trim, -len / 2 + 0.14, 0, zf + 0.28); lb(g, 0.28, 7.2, 0.08, M.trim, len / 2 - 0.14, 0, zf + 0.28);
-  lb(g, len, 0.3, 0.08, M.trim, 0, 6.95, zf + 0.28);
-  lb(g, len - 0.5, 0.12, 0.22, M.metal, 0, 6.8, zf + 0.12);
+  lb(g, 0.28, CEIL - 0.35, 0.08, M.trim, -len / 2 + 0.14, 0, zf + 0.28); lb(g, 0.28, CEIL - 0.35, 0.08, M.trim, len / 2 - 0.14, 0, zf + 0.28);
+  lb(g, len, 0.3, 0.08, M.trim, 0, CEIL - 0.65, zf + 0.28);
+  lb(g, len - 0.5, 0.12, 0.22, M.metal, 0, CEIL - 0.82, zf + 0.12);
   // two bi-pass doors (front and rear track), shaker panels, recessed pulls
-  shaker(g, -len / 2 + 0.25, 0.06, 0.06, 6.78, zf, M.door, 'v', -0.18, 3.4);
-  shaker(g, -0.06, len / 2 - 0.25, 0.06, 6.78, zf + 0.1, M.door, 'v', 0.18, 3.4);
+  shaker(g, -len / 2 + 0.25, 0.06, 0.06, CEIL - 0.9, zf, M.door, 'v', -0.18, 3.4);
+  shaker(g, -0.06, len / 2 - 0.25, 0.06, CEIL - 0.9, zf + 0.1, M.door, 'v', 0.18, 3.4);
   lb(g, len - 0.5, 0.1, 0.12, M.trim, 0, 0, zf + 0.12);
 }
 function sofa(x, z, rot, w = 7.5, d = 3.1) {
