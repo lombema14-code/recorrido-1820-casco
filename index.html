@@ -928,16 +928,16 @@ bed(13.2, 4.1, 0, 6.6, 7.0); nightstand(8.6, 1.3, 0); nightstand(17.8, 1.3, 0); 
   lb(gw, 0.28, CEIL - 0.35, 0.08, M.trim, cw - half / 2 + 0.14, 0, zf + 0.28); lb(gw, 0.28, CEIL - 0.35, 0.08, M.trim, cw + half / 2 - 0.14, 0, zf + 0.28);
   lb(gw, half, 0.3, 0.08, M.trim, cw, CEIL - 0.65, zf + 0.28);
   lb(gw, half - 0.5, 0.12, 0.22, M.metal, cw, CEIL - 0.82, zf + 0.12);
-  shaker(gw, cw - half / 2 + 0.25, cw + 0.06, 0.06, CEIL - 0.9, zf, M.door, 'v', -0.18, 3.4);
-  shaker(gw, cw - 0.06, cw + half / 2 - 0.25, 0.06, CEIL - 0.9, zf + 0.1, M.door, 'v', 0.18, 3.4);
+  shaker(gw, cw - half / 2 + 0.25, cw + 0.06, 0.06, CEIL - 0.9, zf, M.door, 'v', cw - 0.18, 3.4);
+  shaker(gw, cw - 0.06, cw + half / 2 - 0.25, 0.06, CEIL - 0.9, zf + 0.1, M.door, 'v', cw + 0.18, 3.4);
   lb(gw, half - 0.5, 0.1, 0.12, M.trim, cw, 0, zf + 0.12);
   const ge = grp(20.6, zb, Math.PI / 2, true); // local +Z faces east (Nook side), local +X runs north
   const ce = -half / 2; // south compartment center in this frame
   lb(ge, 0.28, CEIL - 0.35, 0.08, M.trim, ce - half / 2 + 0.14, 0, zf + 0.28); lb(ge, 0.28, CEIL - 0.35, 0.08, M.trim, ce + half / 2 - 0.14, 0, zf + 0.28);
   lb(ge, half, 0.3, 0.08, M.trim, ce, CEIL - 0.65, zf + 0.28);
   lb(ge, half - 0.5, 0.12, 0.22, M.metal, ce, CEIL - 0.82, zf + 0.12);
-  shaker(ge, ce - half / 2 + 0.25, ce + 0.06, 0.06, CEIL - 0.9, zf, M.door, 'v', -0.18, 3.4);
-  shaker(ge, ce - 0.06, ce + half / 2 - 0.25, 0.06, CEIL - 0.9, zf + 0.1, M.door, 'v', 0.18, 3.4);
+  shaker(ge, ce - half / 2 + 0.25, ce + 0.06, 0.06, CEIL - 0.9, zf, M.door, 'v', ce - 0.18, 3.4);
+  shaker(ge, ce - 0.06, ce + half / 2 - 0.25, 0.06, CEIL - 0.9, zf + 0.1, M.door, 'v', ce + 0.18, 3.4);
   lb(ge, half - 0.5, 0.1, 0.12, M.trim, ce, 0, zf + 0.12);
 }
 { // dresser on the west wall, in the free span between the egress window (ends Z 7.1) and the exterior door (starts Z 12.6): legs, two columns of drawers with bar pulls
