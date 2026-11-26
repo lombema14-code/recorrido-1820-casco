@@ -338,9 +338,9 @@ const ROOMS = [
   { id: 'storage', name: 'Storage', r: [6, 22.5, 13.5, 31], floor: 'tile', dims: `7'-6" × 8'-6"`, info: 'Water heater and main electrical panel.' },
   { id: 'mbath', name: 'Master Bath', r: [13.5, 22.5, 22, 31], floor: 'tile', dims: `8'-6" × 8'-6"`, info: '3\'-6" walk-in shower in the northwest corner, toilet beside it, double vanity on the east wall, small window to the south.' },
   { id: 'nook', name: 'Nook', r: [24, 0, 31.7, 17], floor: 'wood', dims: `7'-8" × 17'-0"`, info: 'Dining nook open to the family room, 25SH window on the north wall.' },
-  { id: 'bath', name: 'Bath', r: [31.7, 0, 37, 9], floor: 'tile', dims: `5'-4" × 9'-0"`, info: 'Vanity, toilet and tub in a row on the right-hand (east) wall, tub/shower across the north end.' },
-  { id: 'bed3', name: 'Bedroom #3', r: [37, 0, 48, 11.3], floor: 'carpet', dims: `11'-0" × 11'-4"`, info: 'Two 4\' bi-pass closets to the east, 25SH egress window to the north, 2\'-8" door at the southwest corner.' },
-  { id: 'bath2', name: 'Bath 2', r: [48, 0, 53.3, 9], floor: 'tile', dims: `5'-4" × 9'-0"`, info: 'Walk-in shower across the north end, toilet and vanity in a row on the east wall.' },
+  { id: 'bath', name: 'Bath', r: [31.7, 0, 37, 11.3], floor: 'tile', dims: `5'-4" × 11'-4"`, info: 'Linen closet by the door, then vanity and toilet in a row on the east wall, tub across the north end.' },
+  { id: 'bed3', name: 'Bedroom #3', r: [37, 0, 48, 11.3], floor: 'carpet', dims: `11'-0" × 11'-4"`, info: 'Two 4\' bi-pass closets on the west wall, 25SH egress window to the north, 2\'-8" door at the southwest corner.' },
+  { id: 'bath2', name: 'Bath 2', r: [48, 0, 53.3, 11.3], floor: 'tile', dims: `5'-4" × 11'-4"`, info: 'Linen closet by the door, vanity and toilet in a row on the east wall, walk-in shower across the north end.' },
   { id: 'kitchen', name: 'Kitchen', r: [53.3, 0, 65.7, 9], floor: 'ktile', dims: `12'-4" × 9'-0"`, info: 'Counter run on the north wall with range and sink, refrigerator to the east, 7\'-4" island with double sink and dishwasher, two 25SH windows to the porch.' },
   { id: 'porch', name: 'Front Porch', r: [65.7, 0, 71, 15.5], floor: 'concrete', dims: `5'-4" × 15'-6" · 91 sq ft`, info: 'Covered front porch with its own lower roof and columns. 3\'-0" front door into the great room.' },
   { id: 'bed2', name: 'Bedroom #2', r: [34, 18.85, 51.4, 37], floor: 'carpet', dims: `12'-6" × 11'-4"`, info: '2\'-8" door from the hallway into a small entry beside the stackable laundry closet, 5\' bi-pass closet on the east wall, 25SH egress window to the south.' },
@@ -524,13 +524,13 @@ wall(22, 0, 22, 22.5, TI, CEIL, [DOOR(19, 21.67, 6.83, { hinge: 'a', side: -1, s
 wall(22, 22.5, 22, 31, TI, CEIL);                                  // m.bath | family
 wall(6, 22.5, 22, 22.5, TI, CEIL, [DOOR(9, 11.5, 6.83, { hinge: 'a', side: 1, swing: true }), DOOR(18.6, 21.1, 6.83, { hinge: 'b', side: 1, swing: true })]); // master | storage, m.bath
 wall(13.5, 22.5, 13.5, 31, TI, CEIL);                              // storage | m.bath
-wall(31.7, 0, 31.7, 9, TI, CEIL);                                  // nook | bath
-wall(31.7, 9, 37, 9, TI, CEIL, [DOOR(33.2, 35.7, 6.83, { hinge: 'a', side: -1, swing: true })]);                 // bath door
-wall(37, 0, 37, 9, TI, CEIL);                                      // bath | bed3 (ends at the bath's south wall Z 9; the Z 9-11.3 stub was a free fin in the hallway, removed 25-nov-2026 at Emanuel's instruction)
+wall(31.7, 0, 31.7, 11.3, TI, CEIL);                               // nook | bath, full depth to the hallway line (25-nov-2026: the baths front the hallway on the same line as bedroom #3, sealed plan)
+wall(31.7, 11.3, 37, 11.3, TI, CEIL, [DOOR(31.9, 34.57, 6.83, { hinge: 'a', side: -1, swing: true })]); // bath front on the hallway line; door 2'-8" at the west end per the sealed plan (25-nov-2026)
+wall(37, 0, 37, 11.3, TI, CEIL);                                   // bath | bed3, full depth to the hallway line (25-nov-2026)
 wall(37, 11.3, 48, 11.3, TI, CEIL, [DOOR(37.6, 40.27, 6.83, { hinge: 'a', side: -1, swing: true })]);            // bed3 door SW corner
-wall(48, 0, 48, 9, TI, CEIL);                                      // bed3 | bath2 (ends at bath2's south wall Z 9; the Z 9-11.3 stub was a free fin in the hallway, removed 25-nov-2026 at Emanuel's instruction)
-wall(48, 9, 53.3, 9, TI, CEIL, [DOOR(49.3, 51.8, 6.83, { hinge: 'a', side: -1, swing: true })]);                 // bath2 door
-wall(53.3, 0, 53.3, 9, TI, CEIL);                                  // bath2 | kitchen
+wall(48, 0, 48, 11.3, TI, CEIL);                                   // bed3 | bath2, full depth to the hallway line (25-nov-2026)
+wall(48, 11.3, 53.3, 11.3, TI, CEIL, [DOOR(48.3, 50.97, 6.83, { hinge: 'a', side: -1, swing: true })]); // bath2 front on the hallway line; door 2'-8" at the west end per the sealed plan (25-nov-2026)
+wall(53.3, 0, 53.3, 11.3, TI, CEIL);                               // bath2 | kitchen, full depth to the hallway line (25-nov-2026)
 // MIDDLE ZONE, corrected 23-nov-2026 from the vectors of the sealed plan (BRIEF-FIX-ZONA-MEDIA.md).
 // The old reading (5'-2" hall, open space Z 16.5-25.6, bed2 X 40-52.5 from Z 25.6, laundry in the great room
 // wall) did not exist on the plan.
@@ -949,19 +949,33 @@ toilet(15.05, 28.6, Math.PI / 2, 1.35); vanity(20.9, 28.55, -Math.PI / 2, 4.2, 2
 { const g = grp(27.9, 8.5, 0, true); lc(g, 2.2, 0.12, M.wood, 0, 2.45, 0, 48); lc(g, 0.25, 2.45, M.metal, 0, 0, 0, 16, 0.35); lc(g, 1.0, 0.08, M.metal, 0, 0, 0, 24); lc(g, 0.55, 0.12, M.porcelain, 0, 2.57, 0, 28, 0.35); }
 chair(27.9, 5.7, 0); chair(27.9, 11.3, Math.PI); chair(25.1, 8.5, Math.PI / 2); chair(30.7, 8.5, -Math.PI / 2);
 pendant(27.9, 8.5, 6.2, 1.0);
-// Bath (hall bath, 5'-4" x 9'-0"). Owner's order, matching the sealed plan: entering from the south door,
-// everything in a row on the right-hand (east) wall: vanity first, then the toilet, tub across the north end.
+// Bath (hall bath, 5'-4" x 11'-4", corrected 25-nov-2026 from the sealed plan): the bath fronts the hallway
+// on the same line as bedroom #3. From the door: linen closet by the door against the east wall, then the
+// vanity, then the toilet, tub across the north end. Fixtures on the east wall, same layout as bath 2.
 tubAlcove(31.9, 0.335, 36.8, 2.95);
 toilet(35.45, 4.45, -Math.PI / 2, 1.35, -1);
-vanity(35.9, 7.3, -Math.PI / 2, 3.0);
-// Bedroom #3
-bed(40.9, 5.4, Math.PI / 2, 5.2, 6.8); nightstand(38.1, 1.5, Math.PI / 2); rug(39.5, 1.9, 45.0, 8.8);
-closet(46.6, 2.9, -Math.PI / 2, 4); closet(46.6, 7.2, -Math.PI / 2, 4);
-// Bath 2 (sealed plan: shower across the north end, toilet and vanity in a row on the east wall)
+vanity(35.9, 6.9, -Math.PI / 2, 3.0);
+// linen closet (sealed plan: 2'-10" long, 2'-0" deep, 2'-0" bifold on its west face)
+wall(35, 8.4, 37, 8.4, TI, CEIL);
+wall(35, 8.4, 35, 11.3, TI, CEIL, [{ a: 8.55, b: 10.55, sill: 0, head: 6.83, kind: 'open' }]);
+wbox(34.94, 0.02, 8.6, 35.06, 6.78, 9.52, M.door); wbox(34.94, 0.02, 9.58, 35.06, 6.78, 10.5, M.door); // bifold panels, closed
+// Bedroom #3 (closets corrected 25-nov-2026 from the sealed plan: two separate reach-in closets on the
+// WEST wall, each 5'-6" long, 2'-0" deep, 4'W bi-pass, with a partition between them; bed head on the east wall so the closets stay clear)
+bed(44.3, 5.4, -Math.PI / 2, 5.2, 6.8); nightstand(46.6, 1.5, -Math.PI / 2); rug(41.2, 1.9, 46.7, 8.8);
+wall(39, 0, 39, 11.3, TI, CEIL, [{ a: 0.8, b: 4.8, sill: 0, head: 6.83, kind: 'open' }, { a: 6.5, b: 10.5, sill: 0, head: 6.83, kind: 'open' }]); // closet front with the two bi-pass openings
+wall(37, 5.65, 39, 5.65, TI, CEIL); // partition between the two closets
+wbox(38.9, 0.02, 0.85, 39.0, 6.78, 2.85, M.door); wbox(39.03, 0.02, 2.75, 39.13, 6.78, 4.75, M.door); // south closet bi-pass panels
+wbox(38.9, 0.02, 6.55, 39.0, 6.78, 8.55, M.door); wbox(39.03, 0.02, 8.45, 39.13, 6.78, 10.45, M.door); // north closet bi-pass panels
+// Bath 2 (5'-4" x 11'-4", corrected 25-nov-2026: fronts the hallway like bath 1, same fixture layout,
+// not mirrored: linen closet by the door, vanity and toilet on the east wall, shower across the north end)
 shower(48.2, 0.335, 53.1, 3.4, [[48.2, 3.4, 50.6, 3.4]]);
 tileFace('z', 0.335, 48.2, 53.1, 0.3, 6.3, 1); tileFace('x', 48.2, 0.335, 3.4, 0.3, 7.6, 1); tileFace('x', 53.1, 0.335, 3.4, 0.3, 7.6, -1);
 showerSet(53.1, 1.9, -Math.PI / 2);
-toilet(51.75, 4.75, -Math.PI / 2, 1.35); vanity(52.2, 7.55, -Math.PI / 2, 2.5);
+toilet(51.75, 4.75, -Math.PI / 2, 1.35); vanity(52.2, 6.9, -Math.PI / 2, 2.5);
+// linen closet by the door, against the east wall (same as bath 1)
+wall(51.3, 8.4, 53.3, 8.4, TI, CEIL);
+wall(51.3, 8.4, 51.3, 11.3, TI, CEIL, [{ a: 8.55, b: 10.55, sill: 0, head: 6.83, kind: 'open' }]);
+wbox(51.24, 0.02, 8.6, 51.36, 6.78, 9.52, M.door); wbox(51.24, 0.02, 9.58, 51.36, 6.78, 10.5, M.door); // bifold panels, closed
 // Kitchen: counter run on the north wall (range + sink), fridge to the east, island with double sink + DW
 {
   const K = new THREE.Group(); house.add(K);                               // world-aligned (fronts face +Z)
@@ -1036,7 +1050,7 @@ armchair(27.3, 21.2, 0.15); rug(25.1, 22.4, 33.3, 30.2); floorLamp(33.1, 21.3);
 // ceiling fixtures: fans in the bedrooms and living areas (Florida standard), domes in baths, halls and storage,
 // recessed cans over the kitchen counter run
 for (const [fx, fz] of [[13.2, 11.2], [42.6, 5.6], [42.4, 28.0], [28.4, 25.0], [61.0, 28.0]]) ceilFan(fx, fz);
-for (const [dx, dz] of [[9.8, 26.8], [18.6, 26.6], [34.35, 5.2], [50.65, 5.6], [36.0, 13.25], [43.0, 13.25], [52.0, 13.25], [43.9, 17.0]]) domeLight(dx, dz, 0.5);
+for (const [dx, dz] of [[9.8, 26.8], [18.6, 26.6], [34.35, 5.65], [50.65, 5.65], [36.0, 13.25], [43.0, 13.25], [52.0, 13.25], [43.9, 17.0]]) domeLight(dx, dz, 0.5);
 for (const cx of [54.4, 58.6, 61.8]) canLight(cx, 3.6);
 // Hallway: stacked washer/dryer in the laundry closet, A/H unit
 // Laundry niche X 45.4-49.3, Z 19.0-22.3 (sealed plan): machines face north into the Bedroom #2 entry pocket; no front on the hallway wall (reading approved by Emanuel, 24-nov-2026)
@@ -1207,9 +1221,9 @@ const TOUR = [
   { id: 'master', p: [19.2, 20.6], look: [11, 3.2, 3.5] },
   { id: 'mbath', p: [18.9, 23.3], look: [17.6, 3.0, 30] },
   { id: 'storage', p: [10.3, 22.9], look: [8.2, 3.0, 29.5] },
-  { id: 'bath', p: [33.9, 8.6], look: [35.0, 2.4, 1] },
-  { id: 'bed3', p: [39.2, 10.0], look: [45, 3.2, 2.5] },
-  { id: 'bath2', p: [50.2, 8.6], look: [51.2, 2.6, 0.8] },
+  { id: 'bath', p: [33.8, 10.2], look: [35.0, 2.4, 1] },
+  { id: 'bed3', p: [40.3, 10.2], look: [45, 3.2, 2.5] },
+  { id: 'bath2', p: [49.9, 10.2], look: [51.2, 2.6, 0.8] },
   { id: 'hall', p: [33.2, 13.2], look: [52, 4.0, 13.9] },
   { id: 'bed2', p: [45.2, 33.6], look: [38.5, 3.4, 22.5] },
   { id: 'porch', p: [69.6, 15.0], look: [67.5, 4, 1.5] },
