@@ -334,12 +334,12 @@ function ls(g, r, mat, x, y, z, sy = 1) { const m = new THREE.Mesh(new THREE.Sph
    ROOMS (SPEC.md)
    ===================================================================== */
 const ROOMS = [
-  { id: 'master', name: 'Master Bedroom', r: [6, 0, 22, 22.5], floor: 'carpet', dims: `16'-0" × 22'-6"`, info: 'Two 4\' bi-pass closets on the east wall, egress window and 25SH window facing west, 2\'-8" door at the southeast corner.' },
+  { id: 'master', name: 'Master Bedroom', r: [6, 0, 22, 22.5], floor: 'carpet', dims: `16'-0" × 22'-6"`, info: 'One 4\' bi-pass closet on the east wall (the other closet on this wall opens to the Nook), egress window and 25SH window facing west, 2\'-8" door at the southeast corner.' },
   { id: 'storage', name: 'Storage', r: [6, 22.5, 13.5, 31], floor: 'tile', dims: `7'-6" × 8'-6"`, info: 'Water heater and main electrical panel.' },
   { id: 'mbath', name: 'Master Bath', r: [13.5, 22.5, 22, 31], floor: 'tile', dims: `8'-6" × 8'-6"`, info: '3\'-6" walk-in shower in the northwest corner, toilet beside it, double vanity on the east wall, small window to the south.' },
-  { id: 'nook', name: 'Nook', r: [24, 0, 31.7, 17], floor: 'wood', dims: `7'-8" × 17'-0"`, info: 'Dining nook open to the family room, 25SH window on the north wall.' },
+  { id: 'nook', name: 'Nook', r: [24, 0, 31.7, 17], floor: 'wood', dims: `7'-8" × 17'-0"`, info: 'Dining nook open to the family room, 25SH window on the north wall, closet opening on the west wall (the unit sits in the Master and opens only to the Nook).' },
   { id: 'bath', name: 'Bath', r: [31.7, 0, 37, 11.3], floor: 'tile', dims: `5'-4" × 11'-4"`, info: 'Linen closet by the door, then vanity and toilet in a row on the east wall, tub across the north end.' },
-  { id: 'bed3', name: 'Bedroom #3', r: [37, 0, 48, 11.3], floor: 'carpet', dims: `11'-0" × 11'-4"`, info: 'Two 4\' bi-pass closets on the west wall, 25SH egress window to the north, 2\'-8" door at the southwest corner.' },
+  { id: 'bed3', name: 'Bedroom #3', r: [37, 0, 48, 11.3], floor: 'carpet', dims: `11'-0" × 11'-4"`, info: 'Two 4\' bi-pass closets on the west wall, 25SH egress window to the north, 2\'-8" door at the southeast corner, next to Bath 2.' },
   { id: 'bath2', name: 'Bath 2', r: [48, 0, 53.3, 11.3], floor: 'tile', dims: `5'-4" × 11'-4"`, info: 'Linen closet by the door, vanity and toilet in a row on the east wall, walk-in shower across the north end.' },
   { id: 'kitchen', name: 'Kitchen', r: [53.3, 0, 65.7, 9], floor: 'ktile', dims: `12'-4" × 9'-0"`, info: 'Counter run on the north wall with range and sink, refrigerator to the east, 7\'-4" island with double sink and dishwasher, two 25SH windows to the porch.' },
   { id: 'porch', name: 'Front Porch', r: [65.7, 0, 71, 15.5], floor: 'concrete', dims: `5'-4" × 15'-6" · 91 sq ft`, info: 'Covered front porch with its own lower roof and columns. 3\'-0" front door into the great room.' },
@@ -520,14 +520,14 @@ wall(6, 31, 34, 31, TE, EXT_H, [WIN(16.4, 18.4, 5.3, 7.3), WIN(25.4, 28.9), DOOR
 wall(6, 0, 6, 31, TE, EXT_H, [WIN(4.0, 7.1, 2.6), DOOR(12.6, 15.4, 6.83, { hinge: 'a', side: 1, swing: true }), WIN(17.9, 21.0, 2.6)], -1); // west master/storage: egress 25SH, 3'-0" exterior door to the uncovered concrete pad (sealed plan), 25SH
 
 /* interior partitions */
-wall(22, 0, 22, 22.5, TI, CEIL, [DOOR(19, 21.67, 6.83, { hinge: 'a', side: -1, swing: true })]);                 // master | nook/family, 2'-8" door SE corner
+wall(22, 0, 22, 22.5, TI, CEIL, [{ a: 5.4, b: 9.4, sill: 0, head: 7, kind: 'open' }, DOOR(19, 21.67, 6.83, { hinge: 'a', side: -1, swing: true })]); // master | nook/family: opening at Z 5.4-9.4 = the nook closet (the unit sits in the master and opens only to the nook); 2'-8" door SE corner
 wall(22, 22.5, 22, 31, TI, CEIL);                                  // m.bath | family
 wall(6, 22.5, 22, 22.5, TI, CEIL, [DOOR(9, 11.5, 6.83, { hinge: 'a', side: 1, swing: true }), DOOR(18.6, 21.1, 6.83, { hinge: 'b', side: 1, swing: true })]); // master | storage, m.bath
 wall(13.5, 22.5, 13.5, 31, TI, CEIL);                              // storage | m.bath
 wall(31.7, 0, 31.7, 11.3, TI, CEIL);                               // nook | bath, full depth to the hallway line (25-nov-2026: the baths front the hallway on the same line as bedroom #3, sealed plan)
 wall(31.7, 11.3, 37, 11.3, TI, CEIL, [DOOR(31.9, 34.57, 6.83, { hinge: 'a', side: -1, swing: true })]); // bath front on the hallway line; door 2'-8" at the west end per the sealed plan (25-nov-2026)
 wall(37, 0, 37, 11.3, TI, CEIL);                                   // bath | bed3, full depth to the hallway line (25-nov-2026)
-wall(37, 11.3, 48, 11.3, TI, CEIL, [DOOR(37.6, 40.27, 6.83, { hinge: 'a', side: -1, swing: true })]);            // bed3 door SW corner
+wall(37, 11.3, 48, 11.3, TI, CEIL, [DOOR(45.27, 47.94, 6.83, { hinge: 'b', side: -1, swing: true })]);            // bed3 door SE corner, next to bath 2 (sealed plan; moved 26-nov-2026 at Emanuel's instruction: the SW door opened into the closet strip)
 wall(48, 0, 48, 11.3, TI, CEIL);                                   // bed3 | bath2, full depth to the hallway line (25-nov-2026)
 wall(48, 11.3, 53.3, 11.3, TI, CEIL, [DOOR(48.3, 50.97, 6.83, { hinge: 'a', side: -1, swing: true })]); // bath2 front on the hallway line; door 2'-8" at the west end per the sealed plan (25-nov-2026)
 wall(53.3, 0, 53.3, 11.3, TI, CEIL);                               // bath2 | kitchen, full depth to the hallway line (25-nov-2026)
@@ -913,7 +913,8 @@ function gooseneck(x, y, z, dir = 1) {
 
 // Master bedroom
 bed(13.2, 4.1, 0, 6.6, 7.0); nightstand(8.6, 1.3, 0); nightstand(17.8, 1.3, 0); rug(9.2, 4.5, 17.2, 10.8);
-closet(20.6, 3.1, -Math.PI / 2, 4); closet(20.6, 7.4, -Math.PI / 2, 4);
+closet(20.6, 3.1, -Math.PI / 2, 4); // master closet, opens to the master
+closet(20.6, 7.4, Math.PI / 2, 4); // the south closet STAYS in the master (box on the master side) but its doors face EAST through the wall opening: it opens only from the nook, nothing occupies nook floor (Emanuel's correction, 26-nov-2026)
 { // dresser on the west wall, in the free span between the egress window (ends Z 7.1) and the exterior door (starts Z 12.6): legs, two columns of drawers with bar pulls
   const g = grp(7.05, 9.85, Math.PI / 2, true);
   for (const [a, b] of [[-2.35, -0.7], [2.35, -0.7], [-2.35, 0.7], [2.35, 0.7]]) lb(g, 0.15, 0.35, 0.15, M.wood, a, 0, b);
